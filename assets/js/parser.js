@@ -1,10 +1,39 @@
 class Parser {
+    // Définir les chemins des fichiers comme des constantes
+    static METRO_FILE_PATH = "Data/metro.txt";
+    static POSPOINTS_FILE_PATH = "Data/pospoints.txt";
+
     constructor() {
         this.vertices = {};
         this.edges = [];
         this.posPoints = [];
+        this.init(); // Charge les données lors de l'initialisation
     }
 
+    // Fonction d'initialisation qui charge les données
+    async init() {
+        await this.loadData(Parser.METRO_FILE_PATH);
+        await this.loadData(Parser.POSPOINTS_FILE_PATH);
+    }
+
+    // Méthode pour charger et analyser les fichiers
+    async loadData(filePath) {
+        try {
+            const response = await fetch(filePath);
+            const data = await response.text();
+
+            if (filePath === Parser.METRO_FILE_PATH) {
+                this.parse(data); // Charger les données des métros
+            } else if (filePath === Parser.POSPOINTS_FILE_PATH) {
+                this.parsePosPoints(data); // Charger les points de position
+            }
+
+        } catch (error) {
+            console.error('Erreur de chargement du fichier:', error);
+        }
+    }
+
+    // Fonction pour analyser les données des métros
     parse(fileContent) {
         const lines = fileContent.split('\n');
         let found_start = false;
