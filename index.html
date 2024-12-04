@@ -8,17 +8,31 @@
     <link rel="stylesheet" href="assets/css/home.css">
     <link rel="stylesheet" href="assets/css/footer.css">
 
-    <!-- VivaGraph Library -->
-    <script src="assets/js/libs/vivagraph.min.js"></script>
+    <!-- D3 Library -->
+    <script src="assets/js/libs/d3.min.js"></script>
+
     <script src="assets/js/parser.js"></script>
     <script src="assets/js/heap.js"></script>
     <script src="assets/js/unionFind.js"></script>
     <script src="assets/js/graph.js"></script>
+
+    <script src="assets/js/home.js"></script>
 </head>
 <body>
-    <header>
-    </header>
     <main>
+        <div class="menu">
+            <!-- SEARCH BAR DEPARTURE -->
+            <div class="search-bar">
+                <input type="text" id="departure" placeholder="Departure">
+            </div>
+            <!-- SEARCH BAR DESTINATION -->
+            <div class="search-bar">
+                <input type="text" id="destination" placeholder="Destination">
+            </div>
+            <!-- SEARCH BUTTON -->
+            <button id="search">Search</button>
+        </div>
+        <div class="graph-container"></div>
     </main>
     <footer>
     </footer>

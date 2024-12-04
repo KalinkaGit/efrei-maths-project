@@ -21,7 +21,7 @@ class Graph {
             console.log('Le graphe est déjà initialisé.');
             return;
         }
-
+/*
         const cachedGraph = localStorage.getItem('graph');
         if (cachedGraph) {
             const parsedGraph = JSON.parse(cachedGraph);
@@ -34,7 +34,7 @@ class Graph {
             console.log('Graph chargé depuis le cache.');
             return;
         }
-
+*/
         const parser = new Parser();
         await parser.init();
 
@@ -191,29 +191,3 @@ class Graph {
         return { mst, totalWeight };
     }
 }
-
-// Exemple d'utilisation du Graph avec Kruskal
-(async () => {
-    const graph = new Graph();
-    await graph.init();  // Initialiser le graphe
-    console.log(graph.dicoAdjency)
-    console.log(graph.edges)
-    console.log(graph.nodes)
-    console.log(graph.posPoint)
-
-    const startNode = 66; // Le nœud de départ
-    const endNode = 319;   // Le nœud de destination
-
-    const { distances, previousNodes } = graph.dijkstra(startNode);
-    console.log('Distances depuis le nœud', startNode, ':', distances);
-    console.log('Chemin le plus court du nœud', startNode, 'au nœud', endNode, ':', graph.getShortestPath(startNode, endNode));
-
-    // Calcul de l'arbre couvrant de poids minimum (ACPM)
-    const { mst, totalWeight } = graph.kruskal();
-
-    // Afficher l'ACPM et son poids total
-    console.log('ACPM:', mst);
-    console.log('Poids total de l\'ACPM:', totalWeight);
-})();
-
-

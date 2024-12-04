@@ -160,7 +160,7 @@ class Parser {
             const beforeSemicolon = line.substring(0, index);
             const afterSemicolon = line.substring(index + 2);
             const parts = beforeSemicolon.trim().split(' ');
-            const vertex_id = parts[0];
+            let vertex_id = parts[0];
             const station_name = parts.slice(1).join(' ');
             const restParts = afterSemicolon.trim().split(' ;');
 
@@ -170,6 +170,10 @@ class Parser {
                 const lastParts = lastPart.split(' ');
                 const is_terminus = lastParts[0] === 'True';
                 const branch = parseInt(lastParts[1], 10);
+
+                while (vertex_id.startsWith('0') && vertex_id.length > 1) {
+                    vertex_id = vertex_id.substring(1);
+                }
 
                 this.nodes[vertex_id] = new Node(
                     vertex_id,
