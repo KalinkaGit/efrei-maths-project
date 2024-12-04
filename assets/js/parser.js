@@ -1,11 +1,29 @@
+class Node {
+    constructor(vertex_id, station_name, line_number, is_terminus, branch) {
+        this.vertex_id = vertex_id;
+        this.station_name = station_name;
+        this.line_number = line_number;
+        this.is_terminus = is_terminus;
+        this.branch = branch;
+    }
+}
+
+class Edge {
+    constructor(vertex1_id, vertex2_id, travel_time) {
+        this.vertex1_id = vertex1_id;
+        this.vertex2_id = vertex2_id;
+        this.travel_time = travel_time;
+    }
+}
+
 class Parser {
     static METRO_FILE_PATH = "Data/metro.txt";
     static POSPOINTS_FILE_PATH = "Data/pospoints.txt";
 
     constructor() {
-        this.vertices = {};
-        this.edges = [];
-        this.posPoints = [];
+        this.nodes = {}; // Store nodes as an object where keys are vertex IDs
+        this.edges = []; // Store edges as an array of Edge objects
+        this.posPoints = []; // Store position points
         this.vertexCount = 0;
         this.init();
     }
@@ -47,7 +65,6 @@ class Parser {
                         found_start = true;
                         this.parseVertex(line);
                     }
-
                     continue;
                 }
                 this.parseVertex(line);
@@ -57,10 +74,8 @@ class Parser {
                         found_start = true;
                         this.parseEdge(line);
                     }
-
                     continue;
                 }
-
                 this.parseEdge(line);
             }
         }
@@ -85,13 +100,8 @@ class Parser {
                 const is_terminus = lastParts[0] === 'True';
                 const branch = parseInt(lastParts[1], 10);
 
-                this.vertices[vertex_id] = {
-                    vertex_id,
-                    station_name,
-                    line_number,
-                    is_terminus,
-                    branch,
-                };
+                // Create Node object and store it in the nodes collection
+                this.nodes[vertex_id] = new Node(vertex_id, station_name, line_number, is_terminus, branch);
             }
         }
     }
@@ -105,11 +115,8 @@ class Parser {
             const vertex2_id = parts[1];
             const travel_time = parseInt(parts[2], 10);
     
-            this.edges.push({
-                vertex1_id,
-                vertex2_id,
-                travel_time,
-            });
+            // Create Edge object and store it in the edges array
+            this.edges.push(new Edge(vertex1_id, vertex2_id, travel_time));
         }
     }
 
@@ -140,7 +147,6 @@ class Parser {
     }
 
     updateVertexCount() {
-        this.vertexCount = Object.keys(this.vertices).length;
+        this.vertexCount = Object.keys(this.nodes).length;
     }
-
 }
