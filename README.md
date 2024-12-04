@@ -5,7 +5,6 @@
 ### 3.1 Vérification de la connexité du graphe
 - Implémenter un algorithme pour vérifier si le graphe est **connexe**.
   - **Justification** : Expliquez pourquoi le graphe est ou n'est pas connexe.
-- Si le graphe n'est **pas connexe**, l'algorithme doit ajouter les **arêtes manquantes** pour le rendre connexe.
 
 ---
 
