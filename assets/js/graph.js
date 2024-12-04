@@ -1,4 +1,8 @@
 class Graph {
+    /**
+     * Crée une instance de Graph.
+     * @param {number} vertexCount - Nombre de sommets dans le graphe.
+     */
     constructor(vertexCount = 0) {
         this.nodes = [];  // Stockage des nœuds
         this.edges = new Map();  // Stockage des arêtes sous forme de Map
@@ -7,16 +11,16 @@ class Graph {
         this.isInitialized = false;  // Flag pour vérifier l'initialisation du graphe
     }
 
-    // Méthode d'initialisation du graphe
+    /**
+     * Initialise le graphe en chargeant les données depuis le cache ou via un parser.
+     * Si le graphe est déjà initialisé, cette méthode ne fait rien.
+     */
     async init() {
-
-        // Vérifier si le graphe est déjà initialisé
         if (this.isInitialized) {
             console.log('Le graphe est déjà initialisé.');
-            return;  // Ne rien faire si déjà initialisé
+            return;
         }
 
-        // Vérifier si les données du graphe sont présentes dans le cache
         const cachedGraph = localStorage.getItem('graph');
         if (cachedGraph) {
             const parsedGraph = JSON.parse(cachedGraph);
@@ -29,16 +33,14 @@ class Graph {
             return;
         }
 
-        // Si les données ne sont pas dans le cache, les charger normalement
         const parser = new Parser();
-        await parser.init();  // Simulation de l'initialisation des données
+        await parser.init();
 
         this.setNodes(parser.vertices);
         this.setEdges(parser.edges);
         this.setVertexCount(parser.vertexCount);
         this.initAdjacencyList();
 
-        // Mettre le graphe en cache pour les futurs accès
         localStorage.setItem('graph', JSON.stringify({
             nodes: this.nodes,
             edges: this.edges,
@@ -48,26 +50,37 @@ class Graph {
         this.isInitialized = true;
     }
 
-    // Méthode pour définir les nœuds
+    /**
+     * Définit les nœuds du graphe.
+     * @param {Array} nodes - Tableau des nœuds.
+     */
     setNodes(nodes) {
         this.nodes = nodes;
     }
 
-    // Méthode pour définir les arêtes
+    /**
+     * Définit les arêtes du graphe.
+     * @param {Map} edges - Map des arêtes.
+     */
     setEdges(edges) {
         this.edges = edges;
     }
 
-    // Méthode pour définir le nombre de sommets
+    /**
+     * Définit le nombre de sommets dans le graphe.
+     * @param {number} vertexCount - Nombre de sommets.
+     */
     setVertexCount(vertexCount) {
         this.vertexCount = vertexCount;
     }
 
-    // Initialiser la liste d'adjacence
+    /**
+     * Initialise la liste d'adjacence du graphe à partir des arêtes.
+     */
     initAdjacencyList() {
         this.AdjacencyList.clear();
         this.edges.forEach(edge => {
-            const vertex1 = +edge.vertex1_id;  // Optimisation avec l'opérateur unaire '+'
+            const vertex1 = +edge.vertex1_id;
             const vertex2 = +edge.vertex2_id;
             const travelTime = edge.travel_time;
 
@@ -79,7 +92,10 @@ class Graph {
         });
     }
 
-    // Vérifier si le graphe est connexe
+    /**
+     * Vérifie si le graphe est connexe.
+     * @returns {boolean} - Retourne `true` si le graphe est connexe, `false` sinon.
+     */
     isConnexe() {
         const visited = new Array(this.vertexCount).fill(false);
         const dfs = (node) => {
@@ -89,11 +105,15 @@ class Graph {
             });
         };
 
-        dfs(0);  // Commencer le DFS depuis le nœud 0
-        return visited.every(v => v);  // Vérifier si tous les nœuds ont été visités
+        dfs(0);
+        return visited.every(v => v);
     }
 
-    // Algorithme de Dijkstra pour calculer les plus courts chemins
+    /**
+     * Calcule les plus courts chemins depuis un nœud de départ en utilisant l'algorithme de Dijkstra.
+     * @param {number} startNode - Nœud de départ.
+     * @returns {Object} - Contient les distances et les nœuds précédents.
+     */
     dijkstra(startNode) {
         const distances = Array(this.vertexCount).fill(Infinity);
         distances[startNode] = 0;
@@ -118,21 +138,55 @@ class Graph {
         return { distances, previousNodes };
     }
 
-    // Récupérer le chemin le plus court entre deux nœuds
+    /**
+     * Récupère le chemin le plus court entre deux nœuds.
+     * @param {number} startNode - Nœud de départ.
+     * @param {number} endNode - Nœud de destination.
+     * @returns {Array} - Tableau représentant le chemin le plus court.
+     */
     getShortestPath(startNode, endNode) {
         const { previousNodes } = this.dijkstra(startNode);
         const path = [];
         for (let at = endNode; at !== null; at = previousNodes[at]) {
             path.push(at);
         }
-        return path.reverse();  // Inverser le chemin pour obtenir l'ordre correct
+        return path.reverse();
+    }
+
+    /**
+     * Applique l'algorithme de Kruskal pour calculer l'arbre couvrant de poids minimum (ACPM).
+     * @returns {Object} - Contient l'ACPM et son poids total.
+     */
+    kruskal() {
+        const edgesSorted = [...this.edges].sort((a, b) => a.travel_time - b.travel_time);
+
+        const unionFind = new UnionFind(this.vertexCount);
+        const mst = [];
+        let totalWeight = 0;
+
+        for (const edge of edgesSorted) {
+            const { vertex1_id, vertex2_id, travel_time } = edge;
+            const root1 = unionFind.find(vertex1_id);
+            const root2 = unionFind.find(vertex2_id);
+
+            if (root1 !== root2) {
+                unionFind.union(root1, root2);
+                mst.push(edge);
+                totalWeight += travel_time;
+            }
+        }
+
+        return { mst, totalWeight };
     }
 }
 
-// Exemple d'utilisation du Graph
+// Exemple d'utilisation du Graph avec Kruskal
 (async () => {
     const graph = new Graph();
     await graph.init();  // Initialiser le graphe
+    console.log(graph.AdjacencyList)
+    console.log(graph.edges)
+    console.log(graph.nodes)
 
     const startNode = 66; // Le nœud de départ
     const endNode = 319;   // Le nœud de destination
@@ -140,4 +194,13 @@ class Graph {
     const { distances, previousNodes } = graph.dijkstra(startNode);
     console.log('Distances depuis le nœud', startNode, ':', distances);
     console.log('Chemin le plus court du nœud', startNode, 'au nœud', endNode, ':', graph.getShortestPath(startNode, endNode));
+
+    // Calcul de l'arbre couvrant de poids minimum (ACPM)
+    const { mst, totalWeight } = graph.kruskal();
+
+    // Afficher l'ACPM et son poids total
+    console.log('ACPM:', mst);
+    console.log('Poids total de l\'ACPM:', totalWeight);
 })();
+
+

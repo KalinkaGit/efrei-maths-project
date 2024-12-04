@@ -1,14 +1,28 @@
-
 class MinHeap {
+    /**
+     * Classe représentant une structure de tas binaire minimum (MinHeap).
+     */
     constructor() {
+        /**
+         * Initialiser un tas vide.
+         * @property {Array} heap - Tableau interne représentant le tas.
+         */
         this.heap = [];
     }
 
+    /**
+     * Ajouter un élément au tas.
+     * @param {Object} element - L'élément à ajouter. Il doit avoir une propriété `distance` pour comparer les priorités.
+     */
     push(element) {
         this.heap.push(element);
         this._heapifyUp();
     }
 
+    /**
+     * Extraire et retourner l'élément racine (le plus petit) du tas.
+     * @returns {Object|null} L'élément racine extrait, ou `null` si le tas est vide.
+     */
     pop() {
         if (this.heap.length === 0) return null;
 
@@ -21,10 +35,18 @@ class MinHeap {
         return root;
     }
 
+    /**
+     * Obtenir la taille actuelle du tas.
+     * @returns {number} Le nombre d'éléments dans le tas.
+     */
     size() {
         return this.heap.length;
     }
 
+    /**
+     * Réorganiser le tas après l'ajout d'un élément pour maintenir la propriété de tas.
+     * @private
+     */
     _heapifyUp() {
         let index = this.heap.length - 1;
         while (index > 0) {
@@ -38,6 +60,10 @@ class MinHeap {
         }
     }
 
+    /**
+     * Réorganiser le tas après la suppression de la racine pour maintenir la propriété de tas.
+     * @private
+     */
     _heapifyDown() {
         let index = 0;
         const len = this.heap.length;
