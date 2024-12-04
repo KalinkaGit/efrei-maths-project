@@ -1,33 +1,69 @@
 class Graph {
     constructor(vertexCount = 0) {
-        this.nodes = []; // Simplifié en tableau pour un accès plus direct
-        this.edges = new Map();
-        this.vertexCount = vertexCount;
-        this.AdjacencyList = new Map();
+        this.nodes = [];  // Stockage des nœuds
+        this.edges = new Map();  // Stockage des arêtes sous forme de Map
+        this.vertexCount = vertexCount;  // Nombre de sommets
+        this.AdjacencyList = new Map();  // Liste d'adjacence pour le graphe
+        this.isInitialized = false;  // Flag pour vérifier l'initialisation du graphe
     }
 
+    // Méthode d'initialisation du graphe
     async init() {
+
+        // Vérifier si le graphe est déjà initialisé
+        if (this.isInitialized) {
+            console.log('Le graphe est déjà initialisé.');
+            return;  // Ne rien faire si déjà initialisé
+        }
+
+        // Vérifier si les données du graphe sont présentes dans le cache
+        const cachedGraph = localStorage.getItem('graph');
+        if (cachedGraph) {
+            const parsedGraph = JSON.parse(cachedGraph);
+            this.setNodes(parsedGraph.nodes);
+            this.setEdges(parsedGraph.edges);
+            this.setVertexCount(parsedGraph.vertexCount);
+            this.initAdjacencyList();
+            this.isInitialized = true;
+            console.log('Graph chargé depuis le cache.');
+            return;
+        }
+
+        // Si les données ne sont pas dans le cache, les charger normalement
         const parser = new Parser();
-        await parser.init();
+        await parser.init();  // Simulation de l'initialisation des données
 
         this.setNodes(parser.vertices);
         this.setEdges(parser.edges);
         this.setVertexCount(parser.vertexCount);
         this.initAdjacencyList();
+
+        // Mettre le graphe en cache pour les futurs accès
+        localStorage.setItem('graph', JSON.stringify({
+            nodes: this.nodes,
+            edges: this.edges,
+            vertexCount: this.vertexCount
+        }));
+
+        this.isInitialized = true;
     }
 
+    // Méthode pour définir les nœuds
     setNodes(nodes) {
         this.nodes = nodes;
     }
 
+    // Méthode pour définir les arêtes
     setEdges(edges) {
         this.edges = edges;
     }
 
+    // Méthode pour définir le nombre de sommets
     setVertexCount(vertexCount) {
         this.vertexCount = vertexCount;
     }
 
+    // Initialiser la liste d'adjacence
     initAdjacencyList() {
         this.AdjacencyList.clear();
         this.edges.forEach(edge => {
@@ -43,6 +79,7 @@ class Graph {
         });
     }
 
+    // Vérifier si le graphe est connexe
     isConnexe() {
         const visited = new Array(this.vertexCount).fill(false);
         const dfs = (node) => {
@@ -52,10 +89,11 @@ class Graph {
             });
         };
 
-        dfs(0);
-        return visited.every(v => v);
+        dfs(0);  // Commencer le DFS depuis le nœud 0
+        return visited.every(v => v);  // Vérifier si tous les nœuds ont été visités
     }
 
+    // Algorithme de Dijkstra pour calculer les plus courts chemins
     dijkstra(startNode) {
         const distances = Array(this.vertexCount).fill(Infinity);
         distances[startNode] = 0;
@@ -80,28 +118,24 @@ class Graph {
         return { distances, previousNodes };
     }
 
+    // Récupérer le chemin le plus court entre deux nœuds
     getShortestPath(startNode, endNode) {
         const { previousNodes } = this.dijkstra(startNode);
         const path = [];
         for (let at = endNode; at !== null; at = previousNodes[at]) {
             path.push(at);
         }
-        return path.reverse();
+        return path.reverse();  // Inverser le chemin pour obtenir l'ordre correct
     }
 }
 
-
+// Exemple d'utilisation du Graph
 (async () => {
     const graph = new Graph();
-    await graph.init();
+    await graph.init();  // Initialiser le graphe
 
-    console.log(graph.edges);
-    console.log(graph.nodes);
-    console.log(graph.vertexCount);
-    console.log('Le graphe est connexe :', graph.isConnexe());
-
-    const startNode = 0; // Le nœud de départ
-    const endNode = 3;   // Le nœud de destination
+    const startNode = 66; // Le nœud de départ
+    const endNode = 319;   // Le nœud de destination
 
     const { distances, previousNodes } = graph.dijkstra(startNode);
     console.log('Distances depuis le nœud', startNode, ':', distances);
