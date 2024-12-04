@@ -62,7 +62,6 @@ class Graph {
     
         dfs(0);
     
-        console.log('Tableau des nœuds visités :', visited);
         return visited.every(v => v);
     }
     
