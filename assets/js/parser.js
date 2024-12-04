@@ -205,7 +205,7 @@ class Parser {
      */
     parsePosPoints(fileContent) {
         const lines = fileContent.split('\n');
-
+        
         for (let line of lines) {
             line = line.trim();
 

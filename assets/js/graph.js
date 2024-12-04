@@ -7,7 +7,8 @@ class Graph {
         this.nodes = [];  // Stockage des nœuds
         this.edges = new Map();  // Stockage des arêtes sous forme de Map
         this.vertexCount = vertexCount;  // Nombre de sommets
-        this.AdjacencyList = new Map();  // Liste d'adjacence pour le graphe
+        this.posPoint = []
+        this.dicoAdjency = new Map();  // Liste d'adjacence pour le graphe
         this.isInitialized = false;  // Flag pour vérifier l'initialisation du graphe
     }
 
@@ -27,7 +28,8 @@ class Graph {
             this.setNodes(parsedGraph.nodes);
             this.setEdges(parsedGraph.edges);
             this.setVertexCount(parsedGraph.vertexCount);
-            this.initAdjacencyList();
+            this.setPosPoint(parsedGraph.posPoint);
+            this.initdicoAdjency();
             this.isInitialized = true;
             console.log('Graph chargé depuis le cache.');
             return;
@@ -36,15 +38,17 @@ class Graph {
         const parser = new Parser();
         await parser.init();
 
-        this.setNodes(parser.vertices);
+        this.setNodes(parser.nodes);
         this.setEdges(parser.edges);
         this.setVertexCount(parser.vertexCount);
-        this.initAdjacencyList();
+        this.setPosPoint(parser.posPoints);
+        this.initdicoAdjency();
 
         localStorage.setItem('graph', JSON.stringify({
             nodes: this.nodes,
             edges: this.edges,
-            vertexCount: this.vertexCount
+            vertexCount: this.vertexCount,
+            posPoint: this.posPoint
         }));
 
         this.isInitialized = true;
@@ -75,20 +79,28 @@ class Graph {
     }
 
     /**
+     * Définit les positions du points du graphe
+     * @param {Array} listPosPoint - Liste des position des point .
+     */
+        setPosPoint(listPosPoint) {
+            this.posPoint = listPosPoint;
+        }
+
+    /**
      * Initialise la liste d'adjacence du graphe à partir des arêtes.
      */
-    initAdjacencyList() {
-        this.AdjacencyList.clear();
+    initdicoAdjency() {
+        this.dicoAdjency.clear();
         this.edges.forEach(edge => {
             const vertex1 = +edge.vertex1_id;
             const vertex2 = +edge.vertex2_id;
             const travelTime = edge.travel_time;
 
-            if (!this.AdjacencyList.has(vertex1)) this.AdjacencyList.set(vertex1, []);
-            if (!this.AdjacencyList.has(vertex2)) this.AdjacencyList.set(vertex2, []);
+            if (!this.dicoAdjency.has(vertex1)) this.dicoAdjency.set(vertex1, []);
+            if (!this.dicoAdjency.has(vertex2)) this.dicoAdjency.set(vertex2, []);
             
-            this.AdjacencyList.get(vertex1).push({ node: vertex2, weight: travelTime });
-            this.AdjacencyList.get(vertex2).push({ node: vertex1, weight: travelTime });
+            this.dicoAdjency.get(vertex1).push({ node: vertex2, weight: travelTime });
+            this.dicoAdjency.get(vertex2).push({ node: vertex1, weight: travelTime });
         });
     }
 
@@ -100,7 +112,7 @@ class Graph {
         const visited = new Array(this.vertexCount).fill(false);
         const dfs = (node) => {
             visited[node] = true;
-            (this.AdjacencyList.get(node) || []).forEach(({ node: neighbor }) => {
+            (this.dicoAdjency.get(node) || []).forEach(({ node: neighbor }) => {
                 if (!visited[neighbor]) dfs(neighbor);
             });
         };
@@ -125,7 +137,7 @@ class Graph {
             const { node: closestNode, distance: currentDist } = heap.pop();
             if (currentDist > distances[closestNode]) continue;
 
-            for (let { node: neighbor, weight } of (this.AdjacencyList.get(closestNode) || [])) {
+            for (let { node: neighbor, weight } of (this.dicoAdjency.get(closestNode) || [])) {
                 const newDist = currentDist + weight;
                 if (newDist < distances[neighbor]) {
                     distances[neighbor] = newDist;
@@ -184,9 +196,10 @@ class Graph {
 (async () => {
     const graph = new Graph();
     await graph.init();  // Initialiser le graphe
-    console.log(graph.AdjacencyList)
+    console.log(graph.dicoAdjency)
     console.log(graph.edges)
     console.log(graph.nodes)
+    console.log(graph.posPoint)
 
     const startNode = 66; // Le nœud de départ
     const endNode = 319;   // Le nœud de destination
