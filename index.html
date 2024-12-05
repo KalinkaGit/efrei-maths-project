@@ -21,18 +21,22 @@
 <body>
     <main>
         <div class="menu">
-            <!-- SEARCH BAR DEPARTURE -->
-            <div class="search-bar">
-                <input type="text" id="departure" placeholder="Departure">
+            <div class="menu-content">
+                <label for="start-search">Départ :</label>
+                <input type="text" id="start-search" placeholder="Rechercher un arrêt">
+                <ul id="start-suggestions" class="suggestions"></ul>
+            
+                <label for="end-search">Arrivée :</label>
+                <input type="text" id="end-search" placeholder="Rechercher un arrêt">
+                <ul id="end-suggestions" class="suggestions"></ul>
+            
+                <button id="search">Rechercher</button>
             </div>
-            <!-- SEARCH BAR DESTINATION -->
-            <div class="search-bar">
-                <input type="text" id="destination" placeholder="Destination">
+
+            <div class="results-container">
+                <ul id="results"></ul>
             </div>
-            <!-- SEARCH BUTTON -->
-            <button id="search">Search</button>
-        </div>
-        <div class="graph-container"></div>
+        </div>        
     </main>
     <footer>
     </footer>
