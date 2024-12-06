@@ -1,0 +1,96 @@
+\documentclass[a4paper,12pt]{report}
+
+% Encodage de caractères
+\usepackage[utf8]{inputenc}
+
+% Utilisation des accents
+\usepackage[T1]{fontenc}
+
+% Gestion des marges
+\usepackage{geometry}
+\geometry{top=2.5cm, bottom=2.5cm, left=3cm, right=3cm}
+
+% Pour les graphiques
+\usepackage{graphicx}   
+
+% Pour les liens cliquables dans le PDF
+\usepackage{hyperref}
+
+% Pour les tableaux
+\usepackage{array}
+
+% Pour personnaliser l'en-tête et le pied de page
+\usepackage{fancyhdr}
+
+% Titre
+\title{Tp : Métro - Boulot - Dodo}
+\author{Hugo LEROUX, Rémi GRIMAULT, Axel JACQUET}
+\date{Année : 2024 - 2025}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents % Génère la table des matières
+
+% Personnalisation de l'en-tête et du pied de page
+\pagestyle{fancy}
+\fancyhf{} % Efface l'en-tête et le pied de page par défaut
+\fancyfoot[R]{\thepage} % Numérotation des pages à droite dans le pied de page
+\renewcommand{\headrulewidth}{0pt} % Supprime la ligne dans l'en-tête
+\renewcommand{\footrulewidth}{0.4pt} % Ajoute un trait dans le pied de page
+
+% Ajoute la numérotation des pages à partir de la page 2
+\setcounter{page}{2}
+
+\chapter{Introduction}
+Dans ce chapitre, nous introduirons les concepts fondamentaux nécessaires pour comprendre ce rapport. Ce document présente un exemple de page de rapport en \LaTeX{}, incluant des sections, sous-sections, tableaux et autres éléments communs.
+
+\section{Contexte}
+Le contexte de ce rapport se base sur l'utilisation de \LaTeX{} pour la création de documents structurés. Il est couramment utilisé pour la rédaction de rapports scientifiques, techniques ou académiques.
+
+\section{Objectifs}
+L'objectif de ce rapport est de démontrer les fonctionnalités de base de \LaTeX{} pour la création d'un document académique.
+
+\chapter{Méthodologie}
+Dans cette section, nous décrivons la méthodologie utilisée pour réaliser l'exemple de rapport.
+
+\section{Collecte des données}
+Les données ont été collectées via une méthode d'observation directe.
+
+\subsection{Méthode qualitative}
+Les observations ont été réalisées sur un échantillon de 50 participants. Un questionnaire a été utilisé pour recueillir les réponses.
+
+\section{Analyse des données}
+Les données ont été analysées à l'aide d'outils statistiques comme les tests de moyenne et l'analyse de variance.
+
+\chapter{Résultats}
+Les résultats montrent que l'utilisation de \LaTeX{} est bénéfique pour la rédaction de documents académiques.
+
+\section{Tableau des résultats}
+Voici un exemple de tableau pour présenter les résultats :
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Critère} & \textbf{Résultat} & \textbf{Interprétation} \\ \hline
+PER & 18.5 & Valeur acceptable \\ \hline
+ROCE & 16\% & Bon rendement \\ \hline
+\end{tabular}
+\caption{Tableau des résultats financiers}
+\end{table}
+
+\chapter{Conclusion}
+En conclusion, ce rapport a montré comment utiliser \LaTeX{} pour créer un document structuré, avec des sections, des tableaux, et des références bibliographiques.
+
+\chapter{Références}
+\begin{thebibliography}{9}
+\bibitem{latex} 
+Lamport, L. \textit{\LaTeX: A Document Preparation System}. Addison-Wesley, 1994.
+
+\bibitem{latex2} 
+Knuth, D. \textit{The Art of Computer Programming}. Addison-Wesley, 1968.
+\end{thebibliography}
+
+\end{document}

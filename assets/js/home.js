@@ -1,5 +1,25 @@
 let GRAPH_LOADED = new Graph();
 
+// Dictionnaire de couleurs pour chaque numéro de ligne
+const lineColors = {
+    "1": "#FFD700", // Jaune
+    "2": "#1E90FF", // Bleu
+    "3": "#8B4513", // Marron
+    "3bis": "#ADD8E6", // Bleu clair
+    "4": "#800080", // Violet
+    "5": "#FF4500", // Orange
+    "6": "#32CD32", // Vert
+    "7": "#FF69B4", // Rose
+    "7bis": "#90EE90", // Vert clair
+    "8": "#8A2BE2", // Violet foncé
+    "9": "#FFFF00", // Jaune clair
+    "10": "#D2691E", // Brun
+    "11": "#006400", // Vert foncé
+    "12": "#228B22", // Vert
+    "13": "#0000FF", // Bleu foncé
+    "14": "#9400D3" // Violet profond
+};
+
 (async () => {
     await GRAPH_LOADED.init();
 
@@ -16,8 +36,8 @@ let GRAPH_LOADED = new Graph();
 
     // Calculer l'arbre couvrant de poids minimum (ACPM)
     const { mst, totalWeight } = GRAPH_LOADED.kruskal();
-    console.log('ACPM:', mst);
-    console.log('Poids total de l\'ACPM:', totalWeight);
+    console.log("ACPM:", mst);
+    console.log("Poids total de l'ACPM:", totalWeight);
 
     // Initialisation et dessin du graphe
     await init();
@@ -29,7 +49,7 @@ function secondesToTime(secondes) {
     let minutes = Math.floor((secondes % 3600) / 60);
     let seconds = secondes % 60;
 
-    let time = '';
+    let time = "";
     if (hours > 0) {
         time += `${hours}h `;
     }
@@ -41,17 +61,13 @@ function secondesToTime(secondes) {
     return time;
 }
 
-/**
- * Initialise la position des nœuds, dessine le graphe, définit le zoom
- * et met en place l’autocomplétion.
- */
 async function init() {
     const graphNodes = GRAPH_LOADED.nodes;
     const posPoints = GRAPH_LOADED.posPoint;
 
     // Associer les coordonnées (x,y) aux nœuds
-    Object.values(posPoints).forEach(posPoint => {
-        Object.values(graphNodes).forEach(node => {
+    Object.values(posPoints).forEach((posPoint) => {
+        Object.values(graphNodes).forEach((node) => {
             if (node.station_name === posPoint.name) {
                 node.x = posPoint.x * 2.5;
                 node.y = posPoint.y * 2.5;
@@ -63,14 +79,14 @@ async function init() {
     console.log("Arêtes :", GRAPH_LOADED.edges);
 
     // Créer la liste des liens pour D3
-    const links = GRAPH_LOADED.edges.map(edge => ({
+    const links = GRAPH_LOADED.edges.map((edge) => ({
         source: graphNodes[edge.vertex1_id],
         target: graphNodes[edge.vertex2_id],
-        travel_time: edge.travel_time
+        travel_time: edge.travel_time,
     }));
 
     // Générer un dictionnaire de couleurs par ligne
-    const colors = generateLineColors(graphNodes);
+    const colors = lineColors;
 
     // Créer et mettre en place le SVG + zoom
     const { svg, g } = createSVGAndGroup();
@@ -85,124 +101,87 @@ async function init() {
     fitGraphToView(svg, g);
 
     // Mettre en place l'autocomplétion pour les champs de recherche
-    setupAutocomplete('start-search', 'start-suggestions');
-    setupAutocomplete('end-search', 'end-suggestions');
+    setupAutocomplete("start-search", "start-suggestions");
+    setupAutocomplete("end-search", "end-suggestions");
 
     // Gestion de la redimension de la fenêtre
-    window.addEventListener('resize', () => updateSVGSize(svg));
+    window.addEventListener("resize", () => updateSVGSize(svg));
 }
 
-/**
- * Génère des couleurs distinctes pour chaque ligne de métro/tram.
- */
-function generateLineColors(graphNodes) {
-    const colors = {};
-    for (const node of Object.values(graphNodes)) {
-        if (colors[node.line_number] === undefined) {
-            colors[node.line_number] = d3.interpolateRainbow(Math.random());
-        }
-    }
-    return colors;
-}
-
-/**
- * Crée l'élément SVG, son groupe principal, et gère les dimensions.
- */
 function createSVGAndGroup() {
     const width = window.innerWidth;
     const height = window.innerHeight;
 
-    const svg = d3.select("body")
-        .append("svg")
-        .attr("width", width)
-        .attr("height", height);
+    const svg = d3.select("body").append("svg").attr("width", width).attr("height", height);
 
     const g = svg.append("g");
 
     return { svg, g };
 }
 
-/**
- * Met en place le zoom sur le SVG.
- */
 function applyZoom(svg, g) {
     svg.call(
         d3.zoom()
             .scaleExtent([0.5, 5])
-            .on("zoom", event => g.attr("transform", event.transform))
+            .on("zoom", (event) => g.attr("transform", event.transform))
     );
 }
 
-/**
- * Dessine les liens (arêtes) du graphe.
- */
 function drawLinks(g, links, colors) {
     g.selectAll(".link")
         .data(links)
         .enter()
         .append("line")
         .attr("class", "link")
-        .attr("source", d => d.source.vertex_id)
-        .attr("target", d => d.target.vertex_id)
-        .attr("x1", d => d.source.x)
-        .attr("y1", d => d.source.y)
-        .attr("x2", d => d.target.x)
-        .attr("y2", d => d.target.y)
-        .style("stroke", d => colors[d.source.line_number])
+        .attr("source", (d) => d.source.vertex_id)
+        .attr("target", (d) => d.target.vertex_id)
+        .attr("x1", (d) => d.source.x)
+        .attr("y1", (d) => d.source.y)
+        .attr("x2", (d) => d.target.x)
+        .attr("y2", (d) => d.target.y)
+        .style("stroke", (d) => colors[d.source.line_number] || "#000000")
         .style("stroke-width", 1);
 }
 
-/**
- * Dessine les nœuds (stations) du graphe.
- */
 function drawNodes(g, graphNodes, colors) {
     g.selectAll(".node")
         .data(Object.values(graphNodes))
         .enter()
         .append("circle")
         .attr("class", "node")
-        .attr("cx", d => d.x)
-        .attr("cy", d => d.y)
+        .attr("cx", (d) => d.x)
+        .attr("cy", (d) => d.y)
         .attr("r", 4)
-        .style("fill", d => colors[d.line_number]);
+        .style("fill", (d) => colors[d.line_number] || "#000000");
 }
 
-/**
- * Dessine les étiquettes (labels) des nœuds.
- */
 function drawLabels(g, graphNodes) {
     g.selectAll(".label")
         .data(Object.values(graphNodes))
         .enter()
         .append("text")
         .attr("class", "label")
-        .attr("x", d => d.x + 5)
-        .attr("y", d => d.y - 5)
-        .text(d => d.station_name)
+        .attr("x", (d) => d.x + 5)
+        .attr("y", (d) => d.y - 5)
+        .text((d) => d.station_name)
         .style("fill", "black");
 }
 
-/**
- * Ajuste la vue initiale du graphe pour qu'il s'adapte à la fenêtre.
- */
 function fitGraphToView(svg, g) {
-    const svgWidth = svg.attr('width');
-    const svgHeight = svg.attr('height');
+    const svgWidth = svg.attr("width");
+    const svgHeight = svg.attr("height");
     const graphBBox = g.node().getBBox();
 
     const scale = Math.min(svgWidth / graphBBox.width, svgHeight / graphBBox.height);
     const translateX = (svgWidth - graphBBox.width * scale) / 2 - graphBBox.x * scale;
     const translateY = (svgHeight - graphBBox.height * scale) / 2 - graphBBox.y * scale;
-    g.attr('transform', `translate(${translateX}, ${translateY}) scale(${scale})`);
+    g.attr("transform", `translate(${translateX}, ${translateY}) scale(${scale})`);
 }
 
-/**
- * Met à jour la taille du SVG lors du redimensionnement de la fenêtre.
- */
 function updateSVGSize(svg) {
-    svg.attr('width', window.innerWidth)
-       .attr('height', window.innerHeight);
+    svg.attr("width", window.innerWidth).attr("height", window.innerHeight);
 }
+
 
 /**
  * Met en place l'autocomplétion sur un champ de saisie donné.
@@ -331,18 +310,53 @@ function zoomToPath(path) {
 }
 
 /**
- * Met en évidence le chemin dans le graphe (arêtes plus épaisses sur le chemin).
+ * Met en évidence le chemin dans le graphe (arêtes et nœuds sur le chemin gardent leurs couleurs, les autres sont gris).
  */
 function highlightPath(path) {
     const links = document.querySelectorAll('.link');
+    const nodes = document.querySelectorAll('.node');
+
+    // Mettre en évidence les arêtes sur le chemin
     links.forEach(link => {
         const sourceId = parseInt(link.getAttribute('source'));
         const targetId = parseInt(link.getAttribute('target'));
 
         if (path.includes(sourceId) && path.includes(targetId)) {
-            link.style.strokeWidth = 3;
+            link.style.strokeWidth = 3; // Épaisseur des arêtes du chemin
+            link.style.opacity = 1; // Chemin bien visible
         } else {
+            link.style.stroke = "gray"; // Autres arêtes grisées
             link.style.strokeWidth = 1;
+            link.style.opacity = 0.5; // Atténuer les arêtes non sélectionnées
+        }
+    });
+
+    // Mettre en évidence les nœuds sur le chemin
+    nodes.forEach(node => {
+        const nodeId = parseInt(node.getAttribute('data-id'));
+
+        if (path.includes(nodeId)) {
+            node.style.opacity = 1; // Nœud bien visible
+            node.style.stroke = "black"; // Contour pour mieux démarquer
+            node.style.strokeWidth = 2;
+        } else {
+            node.style.fill = "gray"; // Autres nœuds gris
+            node.style.stroke = "none"; // Pas de contour
+            node.style.opacity = 0.5; // Atténuer les nœuds non sélectionnés
+        }
+    });
+}
+
+/**
+ * Réinitialise les champs de saisie lors du chargement de la page.
+ */
+function resetInputFields() {
+    const inputFields = ['start-search', 'end-search'];
+    inputFields.forEach(fieldId => {
+        const input = document.getElementById(fieldId);
+        if (input) {
+            input.value = ''; // Vide la valeur du champ
+            input.dataset.id = ''; // Réinitialise également l'ID associé
         }
     });
 }

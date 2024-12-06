@@ -153,30 +153,35 @@ class Parser {
      * @param {string} line - Ligne contenant les données d'un sommet.
      */
     parseVertex(line) {
-        line = line.substring(2).trim();
-        const index = line.indexOf(' ;');
-
+        line = line.substring(2).trim(); // Retire les deux premiers caractères et espace initial
+        const index = line.indexOf(' ;'); // Trouve le premier point-virgule suivi d'un espace
+    
         if (index !== -1) {
             const beforeSemicolon = line.substring(0, index);
             const afterSemicolon = line.substring(index + 2);
             const parts = beforeSemicolon.trim().split(' ');
-            let vertex_id = parts[0];
-            const station_name = parts.slice(1).join(' ');
+            const vertex_id = parts[0]; // Récupère l'ID tel quel (inclut potentiellement des zéros)
+            const station_name = parts.slice(1).join(' '); // Nom de la station après l'ID
             const restParts = afterSemicolon.trim().split(' ;');
-
+    
             if (restParts.length === 2) {
                 const line_number = restParts[0].trim();
                 const lastPart = restParts[1].trim();
                 const lastParts = lastPart.split(' ');
                 const is_terminus = lastParts[0] === 'True';
                 const branch = parseInt(lastParts[1], 10);
-
-                while (vertex_id.startsWith('0') && vertex_id.length > 1) {
-                    vertex_id = vertex_id.substring(1);
+    
+                // Supprime les zéros non significatifs uniquement pour les IDs qui ne sont pas strictement "0"
+                let parsed_vertex_id = vertex_id;
+                if (vertex_id !== '0') {
+                    while (parsed_vertex_id.startsWith('0') && parsed_vertex_id.length > 1) {
+                        parsed_vertex_id = parsed_vertex_id.substring(1);
+                    }
                 }
-
-                this.nodes[vertex_id] = new Node(
-                    vertex_id,
+    
+                // Ajoute le nœud au graphe avec l'ID traité
+                this.nodes[parsed_vertex_id] = new Node(
+                    parsed_vertex_id,
                     station_name,
                     line_number,
                     is_terminus,
@@ -185,6 +190,8 @@ class Parser {
             }
         }
     }
+    
+    
 
     /**
      * Parse une ligne pour créer une arête entre deux sommets.
