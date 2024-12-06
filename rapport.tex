@@ -5,6 +5,8 @@
 \usepackage{amsmath, amssymb, amsthm, amsfonts}
 \usepackage{hyperref}
 \usepackage{graphicx}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
 \usepackage{geometry}
 \usepackage{enumitem}
 \usepackage{mathtools}
@@ -20,7 +22,7 @@
 \fancyfoot[C]{}
 \fancyfoot[R]{\thepage}
 
-\title{Rapport Technique : Métro - Boulot - Dodo}
+\title{Rapport Technique :\\ Métro - Boulot - Dodo}
 \author{Hugo LEROUX, Rémi GRIMAULT, Axel JACQUET}
 \date{8 décembre 2024}
 
@@ -31,7 +33,11 @@
     \thispagestyle{empty} % Pas d'en-tête ni de pied de page du fancyhdr
     \begin{center}
         \vspace*{\fill}
-        {\huge \bfseries Rapport Technique : Métro - Boulot - Dodo\par}
+        {\huge \bfseries Rapport Technique\\Métro - Boulot - Dodo\par}
+        \vspace{1cm}
+\begin{center}
+\scalebox{2}{\rotatebox{-50}{$\int$}\kern-0.95em\rotatebox{-50}{$\int$}}
+\end{center}
         \vspace{1cm}
         {\Large Hugo LEROUX, Rémi GRIMAULT, Axel JACQUET\par}
         \vspace{0.5cm}
@@ -77,10 +83,13 @@ Avant de lancer l’application, assurez-vous de disposer d’un environnement a
 
 Le projet utilise principalement des fonctionnalités natives de JavaScript (ES6). Les dépendances externes sont minimales :
 
-
+\begin{itemize}
+    \item D3.js pour convertir nos données en SVG facilement affichable et modifiable en HTML.
+\end{itemize}
 
 \subsection{Lancement de l’Application}
 
+Il suffit d'ouvrir le fichier HTML ou d'utiliser l'application déployé via GitHub Pages
 
 \section{Représentation du Graphe et Choix de la Structure de Données}
 
@@ -249,19 +258,36 @@ Comme $E \approx V$ dans un graphe peu dense, on a $O(V \log V)$ en ordre de gra
 
 \subsection{Connexité via DFS}
 
-- Complexité : $O(V+E)$
-- Optimalité : Une borne inférieure $\Omega(V+E)$ s’applique, donc c’est optimal.
+\begin{itemize}
+	\item \texttt Complexité : $O(V+E)$
+	\item \texttt Optimalité : Une borne inférieure $\Omega(V+E)$ s’applique, donc c’est optimal.
+\end{itemize}
+
+\begin{center}
+c.f : Annexe - Figure 1
+\end{center}
 
 \subsection{Dijkstra (Tas Binaire)}
 
-- Complexité : $O((V+E)\log V)$.
-- Amélioration par tas de Fibonacci : $O(E + V\log V)$, complexité légèrement meilleure, mais plus complexe.
+\begin{itemize}
+	\item Complexité Dijkstra (sans tas) : $O(V^2)$
+	\item Complexité Dijkstra (tas binaire) : $O((V+E)\log V) \approx O(V \log V)$ pour un graphe peu dense.
+\end{itemize}
+
+\begin{center}
+c.f : Annexe - Figure 2
+\end{center}
 
 \subsection{Kruskal et Union-Find}
 
-- Complexité : $O(E \log E)$, dominée par le tri.
-- Opérations d’Union-Find en $O(\alpha(V))$, quasi constant.
+\begin{itemize}
+ \item Complexité : $O(E \log E)$, dominée par le tri.
+ \item Opérations d’Union-Find en $O(\alpha(V))$, quasi constant.
+\end{itemize}
 
+\begin{center}
+c.f : Annexe - Figure 3
+\end{center}
 
 \section{Conclusion}
 
@@ -277,5 +303,103 @@ Nous avons présenté les choix d’implémentation, justifiés d’un point de 
 Toutes ces complexités correspondent aux limites théoriques établies e, cours. Les algorithmes utilisés (DFS, Dijkstra, Kruskal) sont standard. Dans le contexte du réseau de métro, ces approches sont largement suffisantes pour une exécution rapide.
 
 En somme, l’implémentation réalisée est un compromis optimal entre simplicité, efficacité et robustesse théorique.
+
+\newpage
+
+\section{Annexes}
+
+\begin{figure}[!ht]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    title={Complexité de DFS : $O(V+E) \approx O(V)$},
+    xlabel={$V$},
+    ylabel={Complexité (échelle arbitraire)},
+    grid=major,
+    legend style={
+        at={(1.05,0.5)},
+        anchor=west,
+        draw=none
+    }
+]
+% DFS: O(V)
+\addplot[
+    color=blue,
+    thick
+] expression[domain=1:1000, samples=100] {x};
+\addlegendentry{DFS (O(V))}
+\end{axis}
+\end{tikzpicture}
+\caption{Croissance asymptotique de la complexité de DFS}
+\label{fig:dfs}
+\end{figure}
+
+\begin{figure}[!ht]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    title={Comparaison entre Dijkstra et Dijkstra avec tas binaire},
+    xlabel={$V$},
+    ylabel={Complexité (échelle arbitraire)},
+    grid=major,
+    domain=1:100,
+    legend style={
+        at={(1.05,0.5)},
+        anchor=west,
+        draw=none
+    }
+]
+
+% Dijkstra normal: O(V^2)
+\addplot[
+    color=blue,
+    thick
+] expression {x^2};
+\addlegendentry{Dijkstra ($O(V^2)$)}
+
+% Dijkstra tas binaire: O(V log V)
+\addplot[
+    color=red,
+    thick,
+    thick
+] expression {x*ln(x)};
+\addlegendentry{Dijkstra (tas binaire) ($O(V \log V)$)}
+
+\end{axis}
+\end{tikzpicture}
+\caption{Croissance asymptotique de la complexité : Dijkstra vs Dijkstra avec tas binaire}
+\label{fig:dijkstra}
+\end{figure}
+
+\begin{figure}[!ht]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    title={Complexités de Kruskal et Union-Find},
+    xlabel={$V$},
+    ylabel={Complexité (échelle arbitraire)},
+    grid=major,
+    legend style={
+        at={(1.05,0.5)},
+        anchor=west,
+        draw=none
+    },
+    domain=1:1000
+]
+
+% Kruskal: O(V log V)
+\addplot[
+    color=blue,
+    thick
+] expression {x*ln(x)};
+\addlegendentry{Kruskal ($O(V \log V)$)}
+
+\end{axis}
+\end{tikzpicture}
+\caption{Croissance asymptotique de la complexité pour Kruskal et Union-Find}
+\label{fig:kruskal}
+\end{figure}
+
+
 
 \end{document}
