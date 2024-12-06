@@ -1,96 +1,281 @@
-\documentclass[a4paper,12pt]{report}
-
-% Encodage de caractères
+\documentclass[a4paper,12pt]{article}
 \usepackage[utf8]{inputenc}
-
-% Utilisation des accents
 \usepackage[T1]{fontenc}
-
-% Gestion des marges
-\usepackage{geometry}
-\geometry{top=2.5cm, bottom=2.5cm, left=3cm, right=3cm}
-
-% Pour les graphiques
-\usepackage{graphicx}   
-
-% Pour les liens cliquables dans le PDF
+\usepackage[francais]{babel}
+\usepackage{amsmath, amssymb, amsthm, amsfonts}
 \usepackage{hyperref}
-
-% Pour les tableaux
-\usepackage{array}
-
-% Pour personnaliser l'en-tête et le pied de page
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\geometry{left=2cm,right=2cm,top=2cm,bottom=2cm}
 \usepackage{fancyhdr}
 
-% Titre
-\title{Tp : Métro - Boulot - Dodo}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\pagestyle{fancy}
+\fancyhead[L]{Projet : Métro, Boulot, Dodo}
+\fancyhead[R]{Théorie des graphes - Efrei Paris}
+\fancyfoot[L]{\includegraphics[height=0.5cm]{logo_efrei.png}}
+\fancyfoot[C]{}
+\fancyfoot[R]{\thepage}
+
+\title{Rapport Technique : Métro - Boulot - Dodo}
 \author{Hugo LEROUX, Rémi GRIMAULT, Axel JACQUET}
-\date{Année : 2024 - 2025}
+\date{8 décembre 2024}
 
 \begin{document}
 
-\maketitle
+% Première page (page de titre)
+\begin{titlepage}
+    \thispagestyle{empty} % Pas d'en-tête ni de pied de page du fancyhdr
+    \begin{center}
+        \vspace*{\fill}
+        {\huge \bfseries Rapport Technique : Métro - Boulot - Dodo\par}
+        \vspace{1cm}
+        {\Large Hugo LEROUX, Rémi GRIMAULT, Axel JACQUET\par}
+        \vspace{0.5cm}
+        {\Large Rendu : 8 décembre 2024\par}
+        \vspace*{\fill}
+    \end{center}
+    
+    \vspace*{\fill}
+    \noindent\includegraphics[height=0.5cm]{logo_efrei.png}\hfill \the\year -2025
+    \vspace{0.5cm}
+\end{titlepage}
 
-\tableofcontents % Génère la table des matières
+\clearpage
+\tableofcontents
+\clearpage
 
-% Personnalisation de l'en-tête et du pied de page
-\pagestyle{fancy}
-\fancyhf{} % Efface l'en-tête et le pied de page par défaut
-\fancyfoot[R]{\thepage} % Numérotation des pages à droite dans le pied de page
-\renewcommand{\headrulewidth}{0pt} % Supprime la ligne dans l'en-tête
-\renewcommand{\footrulewidth}{0.4pt} % Ajoute un trait dans le pied de page
+\section{Contexte et Objectif}
 
-% Ajoute la numérotation des pages à partir de la page 2
-\setcounter{page}{2}
+Ce projet a pour but d'appliquer des concepts de théorie des graphes au contexte spécifique du réseau de métro parisien. L’objectif est de représenter ce réseau (sommets, arêtes, temps de trajet) sous forme de graphe, puis d’exploiter les algorithmes classiques de la théorie des graphes afin de :
+\begin{itemize}
+    \item Vérifier si le graphe est connexe.
+    \item Calculer les plus courts chemins entre stations.
+    \item Déterminer un Arbre Couvrant de Poids Minimum (ACPM).
+\end{itemize}
 
-\chapter{Introduction}
-Dans ce chapitre, nous introduirons les concepts fondamentaux nécessaires pour comprendre ce rapport. Ce document présente un exemple de page de rapport en \LaTeX{}, incluant des sections, sous-sections, tableaux et autres éléments communs.
+Le code fourni (en JavaScript) repose sur plusieurs classes essentielles :
+\begin{itemize}
+    \item \texttt{Graph} : Représente le graphe (sommets, arêtes) et offre des méthodes d’analyse (connexité, plus courts chemins, ACPM).
+    \item \texttt{Node}, \texttt{Edge} : Encapsulation des propriétés des sommets et arêtes.
+    \item \texttt{Parser} : Chargement et parsing des données externes (fichiers texte).
+    \item \texttt{MinHeap} : Structure de tas binaire minimum, utilisée notamment par l’algorithme de Dijkstra.
+    \item \texttt{UnionFind} : Structure de gestion d'ensembles disjoints, utilisée par l’algorithme de Kruskal.
+\end{itemize}
 
-\section{Contexte}
-Le contexte de ce rapport se base sur l'utilisation de \LaTeX{} pour la création de documents structurés. Il est couramment utilisé pour la rédaction de rapports scientifiques, techniques ou académiques.
+Chaque choix d’implémentation sera justifié d’un point de vue algorithmique et mathématique, avec des analyses de complexité (en $O(\cdot)$), et une mise en perspective des bornes théoriques.
 
-\section{Objectifs}
-L'objectif de ce rapport est de démontrer les fonctionnalités de base de \LaTeX{} pour la création d'un document académique.
 
-\chapter{Méthodologie}
-Dans cette section, nous décrivons la méthodologie utilisée pour réaliser l'exemple de rapport.
+\section{Préparation de l'Environnement et Dépendances}
 
-\section{Collecte des données}
-Les données ont été collectées via une méthode d'observation directe.
+Avant de lancer l’application, assurez-vous de disposer d’un environnement adéquat.
 
-\subsection{Méthode qualitative}
-Les observations ont été réalisées sur un échantillon de 50 participants. Un questionnaire a été utilisé pour recueillir les réponses.
+\subsection{Dépendances et Installation}
 
-\section{Analyse des données}
-Les données ont été analysées à l'aide d'outils statistiques comme les tests de moyenne et l'analyse de variance.
+Le projet utilise principalement des fonctionnalités natives de JavaScript (ES6). Les dépendances externes sont minimales :
 
-\chapter{Résultats}
-Les résultats montrent que l'utilisation de \LaTeX{} est bénéfique pour la rédaction de documents académiques.
 
-\section{Tableau des résultats}
-Voici un exemple de tableau pour présenter les résultats :
 
-\begin{table}[h!]
-\centering
-\begin{tabular}{|c|c|c|}
-\hline
-\textbf{Critère} & \textbf{Résultat} & \textbf{Interprétation} \\ \hline
-PER & 18.5 & Valeur acceptable \\ \hline
-ROCE & 16\% & Bon rendement \\ \hline
-\end{tabular}
-\caption{Tableau des résultats financiers}
-\end{table}
+\subsection{Lancement de l’Application}
 
-\chapter{Conclusion}
-En conclusion, ce rapport a montré comment utiliser \LaTeX{} pour créer un document structuré, avec des sections, des tableaux, et des références bibliographiques.
 
-\chapter{Références}
-\begin{thebibliography}{9}
-\bibitem{latex} 
-Lamport, L. \textit{\LaTeX: A Document Preparation System}. Addison-Wesley, 1994.
+\section{Représentation du Graphe et Choix de la Structure de Données}
 
-\bibitem{latex2} 
-Knuth, D. \textit{The Art of Computer Programming}. Addison-Wesley, 1968.
-\end{thebibliography}
+\subsection{Liste d’Adjacence}
+
+Le graphe $G=(V,E)$ est représenté par une liste d’adjacence. Concrètement, pour chaque sommet $v \in \{0,\dots,V-1\}$, nous stockons une liste de ses voisins $(u,w)$, où $u$ est un sommet adjacent et $w$ le poids (temps de trajet).
+
+Formellement :
+\[
+A : V \to \mathcal{P}(V \times \mathbb{R}^+)
+\]
+Avec $A(v) = \{(u,w) \mid (v,u) \in E \}$.
+
+\subsection{Caractère Non Orienté du Graphe}
+
+Le code insère chaque arête dans les deux sens dans la liste d’adjacence :
+\begin{verbatim}
+this.dicoAdjency.get(vertex1).push({ node: vertex2, weight: travel_time });
+this.dicoAdjency.get(vertex2).push({ node: vertex1, weight: travel_time });
+\end{verbatim}
+
+Cela signifie que pour chaque arête entre $vertex1$ et $vertex2$, les deux sommets se référencent mutuellement. Ainsi, le graphe est traité comme non orienté.
+
+\subsection{Complexité en Espace}
+
+La liste d’adjacence utilise un espace $O(V+E)$. Étant donné que, dans un réseau de métro, le nombre d’arêtes $E$ est en général proportionnel à $V$ (chaque station a un nombre limité de connexions), cette représentation est très efficace, bien meilleure qu’une matrice d’adjacence qui nécessiterait $O(V^2)$ d’espace.
+
+\section{Vérification de la Connexité : Parcours en Profondeur (DFS)}
+
+La connexité du graphe est vérifiée en exécutant un DFS à partir d’un sommet, généralement le sommet $0$. Le principe est simple :
+\begin{enumerate}
+    \item Marquer le sommet de départ comme visité.
+    \item Explorer récursivement chaque voisin non visité.
+    \item À la fin, si tous les sommets sont marqués, le graphe est connexe.
+\end{enumerate}
+
+\subsection{Extrait de Code}
+
+\begin{verbatim}
+isConnexe() {
+    const visited = new Array(this.vertexCount).fill(false);
+
+    const dfs = (node) => {
+        visited[node] = true;
+        (this.dicoAdjency.get(node) || []).forEach(({ node: neighbor }) => {
+            if (!visited[neighbor]) dfs(neighbor);
+        });
+    };
+
+    dfs(0);
+    return visited.every(v => v);
+}
+\end{verbatim}
+
+\subsection{Complexité}
+
+Le DFS explore chaque sommet et chaque arête au plus une fois. Sa complexité est donc :
+\[
+O(V+E).
+\]
+Cette complexité est optimale. Vérifier la connexité nécessite, dans le pire cas, de considérer la quasi-intégralité du graphe.
+
+\section{Calcul des Plus Courts Chemins : Algorithme de Dijkstra}
+
+L'algorithme de Dijkstra calcule les distances minimales d’un sommet source $s$ vers tous les autres sommets dans un graphe à poids non négatifs. Il s’appuie sur une structure de priorité (un tas minimum) pour sélectionner à chaque étape le sommet le plus proche non encore fixé.
+
+\subsection{Principe Mathématique}
+
+Soit $d(v)$ la distance minimale connue pour atteindre $v$ depuis $s$. L’algorithme maintient l’invariant suivant : lorsque le sommet $u$ est extrait du tas avec la plus petite distance $d(u)$, cette distance est optimale. Ceci est démontré par récurrence : la plus petite valeur extraite ne peut pas être améliorée par une exploration future, garantissant la minimalité du chemin correspondant.
+
+\subsection{Extrait de Code}
+
+\begin{verbatim}
+dijkstra(startNode) {
+    const distances = Array(this.vertexCount).fill(Infinity);
+    distances[startNode] = 0;
+    const previousNodes = Array(this.vertexCount).fill(null);
+    const heap = new MinHeap();
+    heap.push({ node: startNode, distance: 0 });
+
+    while (heap.size() > 0) {
+        const { node: closestNode, distance: currentDist } = heap.pop();
+        if (currentDist > distances[closestNode]) continue;
+
+        for (let { node: neighbor, weight } of (this.dicoAdjency.get(closestNode) || [])) {
+            const newDist = currentDist + weight;
+            if (newDist < distances[neighbor]) {
+                distances[neighbor] = newDist;
+                previousNodes[neighbor] = closestNode;
+                heap.push({ node: neighbor, distance: newDist });
+            }
+        }
+    }
+
+    return { distances, previousNodes };
+}
+\end{verbatim}
+
+\subsection{Complexité}
+
+Avec un tas binaire (MinHeap), chaque opération \texttt{push} et \texttt{pop} est en $O(\log V)$. Comme on effectue $O(V+E)$ opérations (insertion initiale, extractions, relaxations), la complexité globale est :
+\[
+O((V+E)\log V).
+\]
+
+\subsection{Améliorations Potentielles}
+
+Un tas de Fibonacci pourrait réduire la complexité à $O(E + V\log V)$, mais l'implantation serait plus complexe. Dans le contexte du réseau de métro, l’amélioration serait marginale.
+
+\section{Arbre Couvrant de Poids Minimum : Algorithme de Kruskal}
+
+\subsection{Principe Mathématique}
+
+L’ACPM (Arbre Couvrant de Poids Minimum) est un sous-ensemble d’arêtes qui connecte tous les sommets avec un poids total minimal. L’algorithme de Kruskal :
+\begin{enumerate}
+    \item Trie les arêtes par ordre croissant de poids.
+    \item Parcourt ces arêtes, et les ajoute si elles ne forment pas de cycle dans l’arbre en construction.
+\end{enumerate}
+
+
+\subsection{Union-Find}
+
+Pour détecter les cycles efficacement, on utilise la structure Union-Find :
+\begin{itemize}
+    \item \texttt{find(x)} : Trouve la racine (représentant) de l’ensemble contenant $x$.
+    \item \texttt{union(x,y)} : Fusionne les ensembles contenant $x$ et $y$.
+\end{itemize}
+
+Avec l’optimisation \emph{path compression} et \emph{union by rank}, chaque opération est en amorti $O(\alpha(V))$, pratiquement constant.
+
+\subsection{Extrait de Code}
+
+\begin{verbatim}
+kruskal() {
+    const edgesSorted = [...this.edges].sort((a, b) => a.travel_time - b.travel_time);
+    const unionFind = new UnionFind(this.vertexCount);
+    const mst = [];
+    let totalWeight = 0;
+
+    for (const edge of edgesSorted) {
+        const { vertex1_id, vertex2_id, travel_time } = edge;
+        const root1 = unionFind.find(vertex1_id);
+        const root2 = unionFind.find(vertex2_id);
+
+        if (root1 !== root2) {
+            unionFind.union(root1, root2);
+            mst.push(edge);
+            totalWeight += travel_time;
+        }
+    }
+
+    return { mst, totalWeight };
+}
+\end{verbatim}
+
+\subsection{Complexité}
+
+Le tri des arêtes domine la complexité :
+\[
+O(E \log E) + O(E \alpha(V)) \approx O(E \log E).
+\]
+
+Comme $E \approx V$ dans un graphe peu dense, on a $O(V \log V)$ en ordre de grandeur.
+
+\section{Complexité et Optimalité}
+
+\subsection{Connexité via DFS}
+
+- Complexité : $O(V+E)$
+- Optimalité : Une borne inférieure $\Omega(V+E)$ s’applique, donc c’est optimal.
+
+\subsection{Dijkstra (Tas Binaire)}
+
+- Complexité : $O((V+E)\log V)$.
+- Amélioration par tas de Fibonacci : $O(E + V\log V)$, complexité légèrement meilleure, mais plus complexe.
+
+\subsection{Kruskal et Union-Find}
+
+- Complexité : $O(E \log E)$, dominée par le tri.
+- Opérations d’Union-Find en $O(\alpha(V))$, quasi constant.
+
+
+\section{Conclusion}
+
+Nous avons présenté les choix d’implémentation, justifiés d’un point de vue à la fois pratique et mathématique :
+
+\begin{itemize}
+    \item La liste d’adjacence assure une mémoire efficace ($O(V+E)$) et des parcours linéaires.
+    \item Le DFS permet de vérifier la connexité en $O(V+E)$, ce qui est optimal.
+    \item Dijkstra, avec un tas binaire, tourne en $O((V+E)\log V)$, ce qui est la norme usuelle et raisonnablement optimal.
+    \item Kruskal, combiné à Union-Find, offre un calcul de l’ACPM en $O(E \log E)$, proche de l’optimal.
+\end{itemize}
+
+Toutes ces complexités correspondent aux limites théoriques établies e, cours. Les algorithmes utilisés (DFS, Dijkstra, Kruskal) sont standard. Dans le contexte du réseau de métro, ces approches sont largement suffisantes pour une exécution rapide.
+
+En somme, l’implémentation réalisée est un compromis optimal entre simplicité, efficacité et robustesse théorique.
 
 \end{document}
