@@ -178,6 +178,7 @@ class Graph {
 
         for (const edge of edgesSorted) {
             const { vertex1_id, vertex2_id, travel_time } = edge;
+
             const root1 = unionFind.find(vertex1_id);
             const root2 = unionFind.find(vertex2_id);
 

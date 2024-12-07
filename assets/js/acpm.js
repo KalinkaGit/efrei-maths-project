@@ -31,9 +31,9 @@ const lineColors = {
 
     // Calculer l'arbre couvrant de poids minimum (ACPM)
     const { mst, totalWeight } = GRAPH_LOADED.kruskal();
+
     // Initialisation et dessin du graphe
     await init();
-    setupSearch();
 })();
 
 function secondesToTime(secondes) {
@@ -86,12 +86,7 @@ async function init() {
     drawNodes(g, graphNodes, colors);
     drawLabels(g, graphNodes);
 
-    // Ajustement de la vue initiale
-    fitGraphToView(svg, g, zoom);
-
-    // Mettre en place l'autocomplétion pour les champs de recherche
-    setupAutocomplete("start-search", "start-suggestions");
-    setupAutocomplete("end-search", "end-suggestions");
+    enableSelection(svg, g);
 
     // Gestion de la redimension de la fenêtre
     window.addEventListener("resize", () => updateSVGSize(svg));
@@ -109,15 +104,16 @@ function createSVGAndGroup() {
 }
 
 function applyZoom(svg, g) {
-    // Créer et stocker le zoom
     const zoom = d3.zoom()
+        .filter((event) => !event.shiftKey) // Désactiver le zoom si Shift est enfoncé
         .scaleExtent([0.5, 5])
         .on("zoom", (event) => g.attr("transform", event.transform));
 
     svg.call(zoom);
 
-    return zoom; // Retourner l'instance du zoom pour usage ultérieur
+    return zoom;
 }
+
 
 function drawLinks(g, links, colors) {
     g.selectAll(".link")
@@ -175,178 +171,6 @@ function fitGraphToView(svg, g, zoom) {
 function updateSVGSize(svg) {
     svg.attr("width", window.innerWidth).attr("height", window.innerHeight);
 }
-
-function createSuggestionElement(node) {
-    const li = document.createElement('li');
-    li.dataset.id = node.vertex_id;
-
-    // Élément pour le nom de la station
-    const stationNameSpan = document.createElement('span');
-    stationNameSpan.textContent = node.station_name;
-    stationNameSpan.style.marginRight = '10px';
-
-    // Élément pour le rond avec le numéro de ligne
-    const lineCircle = document.createElement('span');
-    lineCircle.textContent = node.line_number;
-    if (node.line_number.includes('bis')) {
-        lineCircle.textContent = node.line_number.replace('bis', 'b');
-    }
-    lineCircle.style.display = 'inline-block';
-    lineCircle.style.width = '20px';
-    lineCircle.style.height = '20px';
-    lineCircle.style.borderRadius = '50%';
-    lineCircle.style.backgroundColor = lineColors[node.line_number] || '#000';
-    lineCircle.style.color = '#fff';
-    lineCircle.style.textAlign = 'center';
-    lineCircle.style.lineHeight = '20px';
-    lineCircle.style.float = 'right';
-
-    // Insérer les éléments dans le li
-    li.appendChild(stationNameSpan);
-    li.appendChild(lineCircle);
-
-    return li;
-}
-
-/**
- * Met en place l'autocomplétion sur un champ de saisie donné.
- */
-function setupAutocomplete(inputId, suggestionsId) {
-    const input = document.getElementById(inputId);
-    const suggestions = document.getElementById(suggestionsId);
-
-    input.addEventListener('input', () => {
-        const query = input.value.toLowerCase();
-        suggestions.innerHTML = '';
-
-        if (query.length > 1) {
-            const matchedNodes = Object.values(GRAPH_LOADED.nodes)
-                .filter(node => node.station_name.toLowerCase().includes(query));
-
-            matchedNodes.forEach(node => {
-                const li = createSuggestionElement(node);
-                suggestions.appendChild(li);
-            });
-
-            suggestions.style.display = 'block';
-        } else {
-            suggestions.style.display = 'none';
-        }
-    });
-
-    suggestions.addEventListener('click', event => {
-        if (event.target.tagName === 'LI') {
-            input.value = GRAPH_LOADED.nodes[event.target.dataset.id].station_name;
-            input.dataset.id = event.target.dataset.id;
-            suggestions.style.display = 'none';
-        }
-
-        if (event.target.tagName === 'SPAN' && event.target.parentElement.tagName === 'LI') {
-            input.value = GRAPH_LOADED.nodes[event.target.parentElement.dataset.id].station_name;
-            input.dataset.id = event.target.parentElement.dataset.id;
-            suggestions.style.display = 'none';
-        }
-    });
-
-    document.addEventListener('click', event => {
-        if (!input.contains(event.target) && !suggestions.contains(event.target)) {
-            suggestions.style.display = 'none';
-        }
-    });
-}
-
-/**
- * Met en place le comportement de recherche du chemin.
- */
-function setupSearch() {
-    const searchButton = document.getElementById('search');
-
-    searchButton.addEventListener('click', () => {
-        let startId = parseInt(document.getElementById('start-search').dataset.id);
-        let endId = parseInt(document.getElementById('end-search').dataset.id);
-
-        const startInput = document.getElementById('start-search');
-        const endInput = document.getElementById('end-search');
-
-        // Si aucune suggestion n'a été cliquée, essayer de retrouver le noeud par le nom
-        if (!startId || isNaN(startId)) {
-            const startNode = Object.values(GRAPH_LOADED.nodes).find(
-                node => node.station_name.toLowerCase() === startInput.value.toLowerCase()
-            );
-            if (startNode) {
-                startId = startNode.vertex_id;
-            }
-        }
-
-        if (!endId || isNaN(endId)) {
-            const endNode = Object.values(GRAPH_LOADED.nodes).find(
-                node => node.station_name.toLowerCase() === endInput.value.toLowerCase()
-            );
-            if (endNode) {
-                endId = endNode.vertex_id;
-            }
-        }
-
-        if ((startId && endId) && (startId !== endId)) {
-            const path = GRAPH_LOADED.getShortestPath(startId, endId);
-            displayPathResults(path);
-            zoomToPath(path);
-            highlightPath(path);
-        } else {
-            alert('Veuillez sélectionner ou saisir des arrêts valides.');
-        }
-    });
-}
-
-/**
- * Affiche les résultats du chemin dans la liste prévue à cet effet.
- */
-function displayPathResults(path) {
-    const resultsContainer = document.querySelector('.results-container');
-    const resultsList = document.getElementById('results');
-    resultsList.innerHTML = '';
-
-    let finalTime = 0;
-    let totalTime = 0;
-    let currentLine = GRAPH_LOADED.nodes[path[0]].line_number;
-    let startPoint = path[0];
-
-    for (let i = 0; i < path.length - 1; i++) {
-        const current = path[i];
-        const next = path[i + 1];
-
-        const edge = GRAPH_LOADED.edges.find(e =>
-            (e.vertex1_id == current && e.vertex2_id == next) ||
-            (e.vertex2_id == current && e.vertex1_id == next)
-        );
-
-        finalTime += edge.travel_time;
-        totalTime += edge.travel_time;
-
-        const nextLine = GRAPH_LOADED.nodes[next].line_number;
-
-        // Détecter un changement de ligne ou si c'est la fin du chemin
-        if (nextLine !== currentLine || i === path.length - 2) {
-            const li = document.createElement('li');
-            const endPoint = next; // Arrêt final avant changement
-            li.textContent = `${GRAPH_LOADED.nodes[startPoint].station_name} (${currentLine}) -> ${GRAPH_LOADED.nodes[endPoint].station_name} (${currentLine}) : ${secondesToTime(totalTime)}`;
-            resultsList.appendChild(li);
-
-            // Réinitialiser pour le segment suivant
-            totalTime = 0;
-            startPoint = endPoint;
-            currentLine = nextLine;
-        }
-    }
-
-    // add total time
-    const li = document.createElement('li');
-    li.textContent = `Temps total : ${secondesToTime(finalTime)}`;
-    resultsList.appendChild(li);
-
-    resultsContainer.style.display = 'block';
-}
-
 
 /**
  * Fait un zoom sur le chemin trouvé afin de centrer la vue sur ce dernier.
@@ -418,16 +242,132 @@ function highlightPath(path) {
     });
 }
 
-/**
- * Réinitialise les champs de saisie lors du chargement de la page.
- */
-function resetInputFields() {
-    const inputFields = ['start-search', 'end-search'];
-    inputFields.forEach(fieldId => {
-        const input = document.getElementById(fieldId);
-        if (input) {
-            input.value = ''; // Vide la valeur du champ
-            input.dataset.id = ''; // Réinitialise également l'ID associé
+function enableSelection(svg, g) {
+    let isDragging = false;
+    let selectionRect;
+    let startX, startY;
+
+    svg.on("mousedown", (event) => {
+        if (!event.shiftKey) return; // Activer uniquement si Shift est enfoncé
+        event.preventDefault();
+
+        const transform = d3.zoomTransform(g.node());
+        const [x, y] = transform.invert(d3.pointer(event, svg.node())); // Convertir les coordonnées du pointeur
+        startX = x;
+        startY = y;
+
+        isDragging = true;
+
+        // Créer un rectangle pour la sélection
+        selectionRect = g.append("rect")
+            .attr("x", x)
+            .attr("y", y)
+            .attr("width", 0)
+            .attr("height", 0)
+            .attr("class", "selection")
+            .style("stroke", "blue")
+            .style("stroke-width", 2)
+            .style("fill", "rgba(135, 206, 250, 0.3)"); // Couleur semi-transparente
+    });
+
+    svg.on("mousemove", (event) => {
+        if (isDragging) {
+            const transform = d3.zoomTransform(g.node());
+            const [x, y] = transform.invert(d3.pointer(event, svg.node())); // Convertir les coordonnées du pointeur
+
+            const width = Math.abs(x - startX);
+            const height = Math.abs(y - startY);
+
+            // Ajuster les dimensions et position du rectangle
+            selectionRect
+                .attr("x", Math.min(x, startX))
+                .attr("y", Math.min(y, startY))
+                .attr("width", width)
+                .attr("height", height);
         }
     });
+
+    svg.on("mouseup", (event) => {
+        if (isDragging) {
+            isDragging = false;
+
+            if (selectionRect) {
+                const rect = selectionRect.node().getBBox();
+                selectionRect.remove();
+
+                const selectedNodes = getNodesInSelection(rect);
+                const selectedEdges = getEdgesInSelection(selectedNodes);
+
+                // Colorer les nœuds et arêtes sélectionnés
+                if (selectedNodes.length > 1) {
+                    highlightSelection(selectedNodes, selectedEdges);
+                    const { mst, totalWeight } = calculateACPM(selectedNodes, selectedEdges);
+                    document.getElementById("weight").innerHTML = `${totalWeight}`;
+                }
+            }
+        }
+    });
+}
+
+function getNodesInSelection(rect) {
+    const allNodes = Object.values(GRAPH_LOADED.nodes);
+    return allNodes.filter(node => {
+        const { x, y } = node;
+        return x >= rect.x && x <= rect.x + rect.width && y >= rect.y && y <= rect.y + rect.height;
+    });
+}
+
+function getEdgesInSelection(selectedNodes) {
+    const nodeIds = selectedNodes.map(node => node.vertex_id);
+    return GRAPH_LOADED.edges.filter(edge =>
+        nodeIds.includes(edge.vertex1_id) && nodeIds.includes(edge.vertex2_id)
+    );
+}
+
+function highlightSelection(selectedNodes, selectedEdges) {
+    // Colorer les nœuds sélectionnés
+    d3.selectAll(".node")
+        .style("fill", "gray") // Réinitialiser tous les nœuds
+        .filter(node => selectedNodes.some(selected => selected.vertex_id === node.vertex_id))
+        .style("fill", "red"); // Mettre en évidence les nœuds sélectionnés
+
+    const links = document.querySelectorAll('.link');
+
+    links.forEach(link => {
+        const sourceId = parseInt(link.getAttribute('source'));
+        const targetId = parseInt(link.getAttribute('target'));
+
+        const isLinkSelected = selectedEdges.some(edge =>
+            (edge.vertex1_id == sourceId && edge.vertex2_id == targetId) ||
+            (edge.vertex1_id == targetId && edge.vertex2_id == sourceId)
+        );
+
+        if (isLinkSelected) {
+            link.style.stroke = "red"; // Mettre en évidence les arêtes sélectionnées
+            link.style.strokeWidth = 3;
+        } else {
+            link.style.stroke = "gray"; // Griser les autres arêtes
+            link.style.strokeWidth = 1;
+        }
+    });
+}
+
+function calculateACPM(nodes, edges) {
+    const graphNodes = {};
+    const graphEdges = [];
+    nodes.forEach(node => {
+        graphNodes[node.vertex_id] = node;
+    });
+
+    edges.forEach(edge => {
+        graphEdges.push(edge);
+    });
+
+    const graph = new Graph(); // Assurez-vous d'avoir une méthode pour recréer un graphe
+    graph.setNodes(graphNodes);
+    graph.setEdges(graphEdges);
+    graph.initdicoAdjency();
+    graph.vertexCount = nodes.length;
+
+    return graph.kruskal(); // Calculer l'ACPM
 }

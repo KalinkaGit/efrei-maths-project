@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+
+    <link rel="stylesheet" href="assets/css/header.css">
+    <link rel="stylesheet" href="assets/css/home.css">
+    <link rel="stylesheet" href="assets/css/footer.css">
+
+    <!-- D3 Library -->
+    <script src="assets/js/libs/d3.min.js"></script>
+
+    <script src="assets/js/parser.js"></script>
+    <script src="assets/js/heap.js"></script>
+    <script src="assets/js/unionFind.js"></script>
+    <script src="assets/js/graph.js"></script>
+
+    <script src="assets/js/acpm.js"></script>
+
+    <style>
+        body {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .menu-acpm {
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            border-radius: 0 0 10px 0;
+        }
+
+        .menu-acpm a {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <main>    
+        <div class="menu-acpm">
+            <a href="/index.html">PCC</a>
+            <p>SHIFT+CLIQUE GAUCHE pour sélectionner</p>
+            <p>Poids total: <span id="weight">0</span></p>
+        </div>
+    </main>
+    <footer>
+    </footer>
+</body>
+</html>
