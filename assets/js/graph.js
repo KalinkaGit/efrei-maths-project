@@ -13,28 +13,11 @@ class Graph {
     }
 
     /**
-     * Initialise le graphe en chargeant les données depuis le cache ou via un parser.
+     * Initialise le graphe en chargeant les données depuis le parser.
      * Si le graphe est déjà initialisé, cette méthode ne fait rien.
      */
     async init() {
-        if (this.isInitialized) {
-            console.log('Le graphe est déjà initialisé.');
-            return;
-        }
-/*
-        const cachedGraph = localStorage.getItem('graph');
-        if (cachedGraph) {
-            const parsedGraph = JSON.parse(cachedGraph);
-            this.setNodes(parsedGraph.nodes);
-            this.setEdges(parsedGraph.edges);
-            this.setVertexCount(parsedGraph.vertexCount);
-            this.setPosPoint(parsedGraph.posPoint);
-            this.initdicoAdjency();
-            this.isInitialized = true;
-            console.log('Graph chargé depuis le cache.');
-            return;
-        }
-*/
+
         const parser = new Parser();
         await parser.init();
 
@@ -43,15 +26,6 @@ class Graph {
         this.setVertexCount(parser.vertexCount);
         this.setPosPoint(parser.posPoints);
         this.initdicoAdjency();
-
-        localStorage.setItem('graph', JSON.stringify({
-            nodes: this.nodes,
-            edges: this.edges,
-            vertexCount: this.vertexCount,
-            posPoint: this.posPoint
-        }));
-
-        this.isInitialized = true;
     }
 
     /**
