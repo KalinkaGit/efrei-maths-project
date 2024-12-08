@@ -17,7 +17,6 @@ class Graph {
      * Si le graphe est déjà initialisé, cette méthode ne fait rien.
      */
     async init() {
-
         const parser = new Parser();
         await parser.init();
 
@@ -131,11 +130,16 @@ class Graph {
      * @returns {Array} - Tableau représentant le chemin le plus court.
      */
     getShortestPath(startNode, endNode) {
+        if (typeof startNode === 'string')
+            startNode = +startNode;
+
         const { previousNodes } = this.dijkstra(startNode);
         const path = [];
+
         for (let at = endNode; at !== null; at = previousNodes[at]) {
             path.push(at);
         }
+
         return path.reverse();
     }
 
