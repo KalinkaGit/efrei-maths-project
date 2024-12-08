@@ -72,7 +72,7 @@ Le code fourni (en JavaScript) repose sur plusieurs classes essentielles :
     \item \texttt{UnionFind} : Structure de gestion d'ensembles disjoints, utilisée par l’algorithme de Kruskal.
 \end{itemize}
 
-Chaque choix d’implémentation sera justifié d’un point de vue algorithmique et mathématique, avec des analyses de complexité (en $O(\cdot)$), et une mise en perspective des bornes théoriques.
+Chaque choix d’implémentation sera justifié d’un point de vue algorithmique et mathématique, avec des analyses de complexité (en $O(\cdot)$), et une mise en perspective des bornes théoriques. Toutes les sources du projets sont disponnible sur le dépot suivant : \url{https://github.com/KalinkaGit/efrei-maths-project/tree/dev}
 
 
 \section{Préparation de l'Environnement et Dépendances}
@@ -81,15 +81,85 @@ Avant de lancer l’application, assurez-vous de disposer d’un environnement a
 
 \subsection{Dépendances et Installation}
 
-Le projet utilise principalement des fonctionnalités natives de JavaScript (ES6). Les dépendances externes sont minimales :
+Le projet utilise un environnement basé sur Node.js pour la gestion des dépendances et le lancement des scripts nécessaires. Les principales dépendances sont :
 
 \begin{itemize}
-    \item D3.js pour convertir nos données en SVG facilement affichable et modifiable en HTML.
+    \item \texttt{d3.js} : Librairie utilisée pour manipuler et afficher les données sous forme de graphiques SVG interactifs.
+    \item \texttt{express} : Framework minimaliste pour le serveur HTTP.
+    \item \texttt{body-parser} : Middleware pour parser les requêtes entrantes.
+    \item \texttt{dotenv} : Permet de charger des variables d’environnement depuis un fichier \texttt{.env}.
 \end{itemize}
 
-\subsection{Lancement de l’Application}
+\subsection{Installation de Node.js}
 
-Il suffit d'ouvrir le fichier HTML ou d'utiliser l'application déployé via GitHub Pages
+Pour installer Node.js, suivez les étapes ci-dessous :
+
+\begin{enumerate}
+    \item \textbf{Télécharger Node.js} :
+    \begin{itemize}
+        \item Rendez-vous sur le site officiel de Node.js : \url{https://nodejs.org/}.
+        \item Téléchargez la version \textbf{LTS} (recommandée pour la plupart des utilisateurs).
+    \end{itemize}
+
+    \item \textbf{Installer Node.js} :
+    \begin{itemize}
+        \item Lancez l'installateur téléchargé.
+        \item Suivez les étapes, en conservant les options par défaut (notamment pour ajouter Node.js au \texttt{PATH}).
+        \item Une fois l'installation terminée, ouvrez une invite de commande (Windows PowerShell ou Command Prompt).
+    \end{itemize}
+
+    \item \textbf{Vérifier l'installation} :
+    \begin{itemize}
+        \item Exécutez les commandes suivantes pour vérifier que Node.js et npm (Node Package Manager) sont correctement installés :
+        \begin{verbatim}
+node -v
+npm -v
+        \end{verbatim}
+        \item Les versions respectives devraient s'afficher.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Préparation du Projet}
+
+\begin{enumerate}
+    \item \textbf{Accéder à la racine du projet} :
+    \begin{itemize}
+        \item Ouvrez une invite de commande.
+        \item Utilisez la commande \texttt{cd} pour naviguer vers le dossier racine de votre projet. Exemple :
+        \begin{verbatim}
+cd C:\\chemin\\vers\\projet
+        \end{verbatim}
+    \end{itemize}
+
+    \item \textbf{Installer les dépendances} :
+    \begin{itemize}
+        \begin{verbatim}
+npm install
+        \end{verbatim}
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Lancer le Serveur}
+
+\begin{enumerate}
+
+    \item \textbf{Démarrez le serveur} :
+    \begin{itemize}
+        \item Exécutez la commande suivante dans le dossier du projet :
+        \begin{verbatim}
+node server.js
+        \end{verbatim}
+    \end{itemize}
+    \item \textbf{Vérifiez dans le navigateur} :
+    \begin{itemize}
+        \item Ouvrez votre navigateur et accédez à l'adresse indiquée par le serveur :
+        \begin{verbatim}
+http://localhost:8080
+        \end{verbatim}
+    \end{itemize}
+    
+\end{enumerate}
+
 
 \section{Représentation du Graphe et Choix de la Structure de Données}
 
@@ -197,7 +267,7 @@ O((V+E)\log V).
 
 \subsection{Améliorations Potentielles}
 
-Un tas de Fibonacci pourrait réduire la complexité à $O(E + V\log V)$, mais l'implantation serait plus complexe. Dans le contexte du réseau de métro, l’amélioration serait marginale.
+Un tas de Fibonacci pourrait réduire la complexité à $O(E + V\log V)$, mais l'implantation serait plus complexe. Dans le contexte du réseau de métro, l’amélioration serait pas forcément utile de plus cette méthode n'as pas forcément était vue en cours mais découvert lors de nos rechecrhe sur le sujet.
 
 \section{Arbre Couvrant de Poids Minimum : Algorithme de Kruskal}
 
@@ -296,15 +366,26 @@ Nous avons présenté les choix d’implémentation, justifiés d’un point de 
 \begin{itemize}
     \item La liste d’adjacence assure une mémoire efficace ($O(V+E)$) et des parcours linéaires.
     \item Le DFS permet de vérifier la connexité en $O(V+E)$, ce qui est optimal.
-    \item Dijkstra, avec un tas binaire, tourne en $O((V+E)\log V)$, ce qui est la norme usuelle et raisonnablement optimal.
+    \item Dijkstra, avec un tas binaire, tourne en $O((V+E)\log V)$, ce qui est optimal.
     \item Kruskal, combiné à Union-Find, offre un calcul de l’ACPM en $O(E \log E)$, proche de l’optimal.
 \end{itemize}
 
-Toutes ces complexités correspondent aux limites théoriques établies e, cours. Les algorithmes utilisés (DFS, Dijkstra, Kruskal) sont standard. Dans le contexte du réseau de métro, ces approches sont largement suffisantes pour une exécution rapide.
+Toutes ces complexités correspondent aux limites théoriques établies en, cours. Les algorithmes utilisés (DFS, Dijkstra, Kruskal) sont standard. Dans le contexte du réseau de métro, ces approches sont suffisantes pour une exécution rapide.
 
 En somme, l’implémentation réalisée est un compromis optimal entre simplicité, efficacité et robustesse théorique.
 
 \newpage
+
+\section{Sources}
+
+\begin{itemize}
+    \item \url{https://fr.wikipedia.org/wiki/Algorithme_de_parcours_en_profondeur#Complexit%C3%A9}
+    \item \url{https://fr.wikipedia.org/wiki/Algorithme_de_Dijkstra#Complexit%C3%A9_de_l'algorithme}
+    \item \url{https://fr.wikipedia.org/wiki/Tas_de_Fibonacci}
+    \item \url{https://fr.wikipedia.org/wiki/Union-find}
+    \item Cours II - Arbre couvrant de poids minimum
+    \item Cours III - Recherche du plus court chemin
+\end{itemize}
 
 \section{Annexes}
 
