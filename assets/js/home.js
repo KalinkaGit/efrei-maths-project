@@ -411,10 +411,18 @@ function setupSearch() {
         } else {
             alert('Aucun chemin trouvé entre les stations sélectionnées.');
         }
+
+        const acpmContainer = document.querySelector('.acpm-container');
+        acpmContainer.classList.remove('show');
+        acpmContainer.style.display = 'none';
     });
 
     clearButton.addEventListener('click', () => {
         clearPath();
+
+        const acpmContainer = document.querySelector('.acpm-container');
+        acpmContainer.classList.remove('show');
+        acpmContainer.style.display = 'none';
     });
 }
 
@@ -617,8 +625,14 @@ function setupACPMButton() {
         // Mettre en évidence les arêtes de l'ACPM en rouge
         highlightACPM(mst);
 
-        // Optionnel : Afficher une notification ou un message
-        alert(`ACPM calculé avec un poids total de ${totalWeight}. Les arêtes de l'ACPM sont maintenant en rouge.`);
+        // make acpm-container visible
+        const acpmContainer = document.querySelector('.acpm-container');
+        acpmContainer.style.display = 'block';
+        acpmContainer.classList.add('show');
+
+        // Afficher le poids total de l'ACPM
+        const acpmWeight = document.getElementById('acpm-weight');
+        acpmWeight.textContent = `${secondesToTime(totalWeight)}`;
     });
 }
 
