@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+
+    <!-- Liens vers les fichiers CSS -->
+    <link rel="stylesheet" type="text/css" href="/css/header.css">
+    <link rel="stylesheet" type="text/css" href="/css/home.css">
+    <link rel="stylesheet" type="text/css" href="/css/footer.css">
+
+    <!-- Bibliothèque D3 -->
+    <script src="/js/libs/d3.min.js"></script>
+
+    <!-- Scripts JavaScript -->
+    <script src="/js/parser.js"></script>
+    <script src="/js/heap.js"></script>
+    <script src="/js/unionFind.js"></script>
+    <script src="/js/graph.js"></script>
+
+    <script src="/js/home.js" defer></script>
+
+    <style>
+        body {
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Conteneur de la carte -->
+    <div class="graph-container">
+        <!-- Le graphe D3 sera rendu ici -->
+    </div>
+
+    <!-- Conteneur principal -->
+    <main>
+        <!-- Menu flottant -->
+        <div class="menu">
+            <div class="menu-content">
+                <!-- Conteneur d'autocomplétion pour le champ de départ -->
+                <div class="autocomplete-container">
+                    <label for="start-search">Départ :</label>
+                    <input type="text" id="start-search" placeholder="Rechercher un arrêt" autocomplete="off">
+                    <ul id="start-suggestions" class="suggestions"></ul>
+                </div>
+
+                <!-- Conteneur d'autocomplétion pour le champ d'arrivée -->
+                <div class="autocomplete-container">
+                    <label for="end-search">Arrivée :</label>
+                    <input type="text" id="end-search" placeholder="Rechercher un arrêt" autocomplete="off">
+                    <ul id="end-suggestions" class="suggestions"></ul>
+                </div>
+
+                <!-- Boutons de contrôle -->
+                <button id="search">Rechercher</button>
+                <button id="clear">Effacer</button> <!-- Bouton Effacer existant -->
+                <button id="acpm">ACPM</button> <!-- Nouveau Bouton ACPM ajouté -->
+            </div>
+
+            <div class="results-container">
+                <ul id="results"></ul>
+            </div>
+
+            <div class="acpm-container">
+                <p>
+                    Le poids total de l'arbre couvrant de poids minimum est de <span id="acpm-weight">0</span>.<br><br>
+                    Les arrêtes sont maintenant affichées en rouge.
+                </p>
+            </div>
+        </div>        
+    </main>
+
+    <footer>
+    </footer>
+</body>
+</html>

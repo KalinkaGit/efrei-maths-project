@@ -1,0 +1,486 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[francais]{babel}
+\usepackage{amsmath, amssymb, amsthm, amsfonts}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\geometry{left=2cm,right=2cm,top=2cm,bottom=2cm}
+\usepackage{fancyhdr}
+
+\renewcommand{\footrulewidth}{0.4pt}
+
+\pagestyle{fancy}
+\fancyhead[L]{Projet : Métro, Boulot, Dodo}
+\fancyhead[R]{Théorie des graphes - Efrei Paris}
+\fancyfoot[L]{\includegraphics[height=0.5cm]{logo_efrei.png}}
+\fancyfoot[C]{}
+\fancyfoot[R]{\thepage}
+
+\title{Rapport Technique :\\ Métro - Boulot - Dodo}
+\author{Hugo LEROUX, Rémi GRIMAULT, Axel JACQUET}
+\date{8 décembre 2024}
+
+\begin{document}
+
+% Première page (page de titre)
+\begin{titlepage}
+    \thispagestyle{empty} % Pas d'en-tête ni de pied de page du fancyhdr
+    \begin{center}
+        \vspace*{\fill}
+        {\huge \bfseries Rapport Technique\\Métro - Boulot - Dodo\par}
+        \vspace{1cm}
+\begin{center}
+\scalebox{2}{\rotatebox{-50}{$\int$}\kern-0.95em\rotatebox{-50}{$\int$}}
+\end{center}
+        \vspace{1cm}
+        {\Large Hugo LEROUX, Rémi GRIMAULT, Axel JACQUET\par}
+        \vspace{0.5cm}
+        {\Large Rendu : 8 décembre 2024\par}
+        \vspace*{\fill}
+    \end{center}
+    
+    \vspace*{\fill}
+    \noindent\includegraphics[height=0.5cm]{logo_efrei.png}\hfill \the\year -2025
+    \vspace{0.5cm}
+\end{titlepage}
+
+\clearpage
+\tableofcontents
+\clearpage
+
+\section{Contexte et Objectif}
+
+Ce projet a pour but d'appliquer des concepts de théorie des graphes au contexte spécifique du réseau de métro parisien. L’objectif est de représenter ce réseau (sommets, arêtes, temps de trajet) sous forme de graphe, puis d’exploiter les algorithmes classiques de la théorie des graphes afin de :
+\begin{itemize}
+    \item Vérifier si le graphe est connexe.
+    \item Calculer les plus courts chemins entre stations.
+    \item Déterminer un Arbre Couvrant de Poids Minimum (ACPM).
+\end{itemize}
+
+Le code fourni (en JavaScript) repose sur plusieurs classes essentielles :
+\begin{itemize}
+    \item \texttt{Graph} : Représente le graphe (sommets, arêtes) et offre des méthodes d’analyse (connexité, plus courts chemins, ACPM).
+    \item \texttt{Node}, \texttt{Edge} : Encapsulation des propriétés des sommets et arêtes.
+    \item \texttt{Parser} : Chargement et parsing des données externes (fichiers texte).
+    \item \texttt{MinHeap} : Structure de tas binaire minimum, utilisée notamment par l’algorithme de Dijkstra.
+    \item \texttt{UnionFind} : Structure de gestion d'ensembles disjoints, utilisée par l’algorithme de Kruskal.
+\end{itemize}
+
+Chaque choix d’implémentation sera justifié d’un point de vue algorithmique et mathématique, avec des analyses de complexité (en $O(\cdot)$), et une mise en perspective des bornes théoriques. Toutes les sources du projets sont disponnible sur le dépot suivant : \url{https://github.com/KalinkaGit/efrei-maths-project/tree/dev}
+
+
+\section{Préparation de l'Environnement et Dépendances}
+
+Avant de lancer l’application, assurez-vous de disposer d’un environnement adéquat.
+
+\subsection{Dépendances et Installation}
+
+Le projet utilise un environnement basé sur Node.js pour la gestion des dépendances et le lancement des scripts nécessaires. Les principales dépendances sont :
+
+\begin{itemize}
+    \item \texttt{d3.js} : Librairie utilisée pour manipuler et afficher les données sous forme de graphiques SVG interactifs.
+    \item \texttt{express} : Framework minimaliste pour le serveur HTTP.
+    \item \texttt{body-parser} : Middleware pour parser les requêtes entrantes.
+    \item \texttt{dotenv} : Permet de charger des variables d’environnement depuis un fichier \texttt{.env}.
+\end{itemize}
+
+\subsection{Installation de Node.js}
+
+Pour installer Node.js, suivez les étapes ci-dessous :
+
+\begin{enumerate}
+    \item \textbf{Télécharger Node.js} :
+    \begin{itemize}
+        \item Rendez-vous sur le site officiel de Node.js : \url{https://nodejs.org/}.
+        \item Téléchargez la version \textbf{LTS} (recommandée pour la plupart des utilisateurs).
+    \end{itemize}
+
+    \item \textbf{Installer Node.js} :
+    \begin{itemize}
+        \item Lancez l'installateur téléchargé.
+        \item Suivez les étapes, en conservant les options par défaut (notamment pour ajouter Node.js au \texttt{PATH}).
+        \item Une fois l'installation terminée, ouvrez une invite de commande (Windows PowerShell ou Command Prompt).
+    \end{itemize}
+
+    \item \textbf{Vérifier l'installation} :
+    \begin{itemize}
+        \item Exécutez les commandes suivantes pour vérifier que Node.js et npm (Node Package Manager) sont correctement installés :
+        \begin{verbatim}
+node -v
+npm -v
+        \end{verbatim}
+        \item Les versions respectives devraient s'afficher.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Préparation du Projet}
+
+\begin{enumerate}
+    \item \textbf{Accéder à la racine du projet} :
+    \begin{itemize}
+        \item Ouvrez une invite de commande.
+        \item Utilisez la commande \texttt{cd} pour naviguer vers le dossier racine de votre projet. Exemple :
+        \begin{verbatim}
+cd C:\\chemin\\vers\\projet
+        \end{verbatim}
+    \end{itemize}
+
+    \item \textbf{Installer les dépendances} :
+    \begin{itemize}
+        \begin{verbatim}
+npm install
+        \end{verbatim}
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Lancer le Serveur}
+
+\begin{enumerate}
+
+    \item \textbf{Démarrez le serveur} :
+    \begin{itemize}
+        \item Exécutez la commande suivante dans le dossier du projet :
+        \begin{verbatim}
+node server.js
+        \end{verbatim}
+    \end{itemize}
+    \item \textbf{Vérifiez dans le navigateur} :
+    \begin{itemize}
+        \item Ouvrez votre navigateur et accédez à l'adresse indiquée par le serveur :
+        \begin{verbatim}
+http://localhost:8080
+        \end{verbatim}
+    \end{itemize}
+    
+\end{enumerate}
+
+
+\section{Représentation du Graphe et Choix de la Structure de Données}
+
+\subsection{Liste d’Adjacence}
+
+Le graphe $G=(V,E)$ est représenté par une liste d’adjacence. Concrètement, pour chaque sommet $v \in \{0,\dots,V-1\}$, nous stockons une liste de ses voisins $(u,w)$, où $u$ est un sommet adjacent et $w$ le poids (temps de trajet).
+
+Formellement :
+\[
+A : V \to \mathcal{P}(V \times \mathbb{R}^+)
+\]
+Avec $A(v) = \{(u,w) \mid (v,u) \in E \}$.
+
+\subsection{Caractère Non Orienté du Graphe}
+
+Le code insère chaque arête dans les deux sens dans la liste d’adjacence :
+\begin{verbatim}
+this.dicoAdjency.get(vertex1).push({ node: vertex2, weight: travel_time });
+this.dicoAdjency.get(vertex2).push({ node: vertex1, weight: travel_time });
+\end{verbatim}
+
+Cela signifie que pour chaque arête entre $vertex1$ et $vertex2$, les deux sommets se référencent mutuellement. Ainsi, le graphe est traité comme non orienté.
+
+\subsection{Complexité en Espace}
+
+La liste d’adjacence utilise un espace $O(V+E)$. Étant donné que, dans un réseau de métro, le nombre d’arêtes $E$ est en général proportionnel à $V$ (chaque station a un nombre limité de connexions), cette représentation est très efficace, bien meilleure qu’une matrice d’adjacence qui nécessiterait $O(V^2)$ d’espace.
+
+\section{Vérification de la Connexité : Parcours en Profondeur (DFS)}
+
+La connexité du graphe est vérifiée en exécutant un DFS à partir d’un sommet, généralement le sommet $0$. Le principe est simple :
+\begin{enumerate}
+    \item Marquer le sommet de départ comme visité.
+    \item Explorer récursivement chaque voisin non visité.
+    \item À la fin, si tous les sommets sont marqués, le graphe est connexe.
+\end{enumerate}
+
+\subsection{Extrait de Code}
+
+\begin{verbatim}
+isConnexe() {
+    const visited = new Array(this.vertexCount).fill(false);
+
+    const dfs = (node) => {
+        visited[node] = true;
+        (this.dicoAdjency.get(node) || []).forEach(({ node: neighbor }) => {
+            if (!visited[neighbor]) dfs(neighbor);
+        });
+    };
+
+    dfs(0);
+    return visited.every(v => v);
+}
+\end{verbatim}
+
+\subsection{Complexité}
+
+Le DFS explore chaque sommet et chaque arête au plus une fois. Sa complexité est donc :
+\[
+O(V+E).
+\]
+Cette complexité est optimale. Vérifier la connexité nécessite, dans le pire cas, de considérer la quasi-intégralité du graphe.
+
+\section{Calcul des Plus Courts Chemins : Algorithme de Dijkstra}
+
+L'algorithme de Dijkstra calcule les distances minimales d’un sommet source $s$ vers tous les autres sommets dans un graphe à poids non négatifs. Il s’appuie sur une structure de priorité (un tas minimum) pour sélectionner à chaque étape le sommet le plus proche non encore fixé.
+
+\subsection{Principe Mathématique}
+
+Soit $d(v)$ la distance minimale connue pour atteindre $v$ depuis $s$. L’algorithme maintient l’invariant suivant : lorsque le sommet $u$ est extrait du tas avec la plus petite distance $d(u)$, cette distance est optimale. Ceci est démontré par récurrence : la plus petite valeur extraite ne peut pas être améliorée par une exploration future, garantissant la minimalité du chemin correspondant.
+
+\subsection{Extrait de Code}
+
+\begin{verbatim}
+dijkstra(startNode) {
+    const distances = Array(this.vertexCount).fill(Infinity);
+    distances[startNode] = 0;
+    const previousNodes = Array(this.vertexCount).fill(null);
+    const heap = new MinHeap();
+    heap.push({ node: startNode, distance: 0 });
+
+    while (heap.size() > 0) {
+        const { node: closestNode, distance: currentDist } = heap.pop();
+        if (currentDist > distances[closestNode]) continue;
+
+        for (let { node: neighbor, weight } of (this.dicoAdjency.get(closestNode) || [])) {
+            const newDist = currentDist + weight;
+            if (newDist < distances[neighbor]) {
+                distances[neighbor] = newDist;
+                previousNodes[neighbor] = closestNode;
+                heap.push({ node: neighbor, distance: newDist });
+            }
+        }
+    }
+
+    return { distances, previousNodes };
+}
+\end{verbatim}
+
+\subsection{Complexité}
+
+Avec un tas binaire (MinHeap), chaque opération \texttt{push} et \texttt{pop} est en $O(\log V)$. Comme on effectue $O(V+E)$ opérations (insertion initiale, extractions, relaxations), la complexité globale est :
+\[
+O((V+E)\log V).
+\]
+
+\subsection{Améliorations Potentielles}
+
+Un tas de Fibonacci pourrait réduire la complexité à $O(E + V\log V)$, mais l'implantation serait plus complexe. Dans le contexte du réseau de métro, l’amélioration serait pas forcément utile de plus cette méthode n'as pas forcément était vue en cours mais découvert lors de nos rechecrhe sur le sujet.
+
+\section{Arbre Couvrant de Poids Minimum : Algorithme de Kruskal}
+
+\subsection{Principe Mathématique}
+
+L’ACPM (Arbre Couvrant de Poids Minimum) est un sous-ensemble d’arêtes qui connecte tous les sommets avec un poids total minimal. L’algorithme de Kruskal :
+\begin{enumerate}
+    \item Trie les arêtes par ordre croissant de poids.
+    \item Parcourt ces arêtes, et les ajoute si elles ne forment pas de cycle dans l’arbre en construction.
+\end{enumerate}
+
+
+\subsection{Union-Find}
+
+Pour détecter les cycles efficacement, on utilise la structure Union-Find :
+\begin{itemize}
+    \item \texttt{find(x)} : Trouve la racine (représentant) de l’ensemble contenant $x$.
+    \item \texttt{union(x,y)} : Fusionne les ensembles contenant $x$ et $y$.
+\end{itemize}
+
+Avec l’optimisation \emph{path compression} et \emph{union by rank}, chaque opération est en amorti $O(\alpha(V))$, pratiquement constant.
+
+\subsection{Extrait de Code}
+
+\begin{verbatim}
+kruskal() {
+    const edgesSorted = [...this.edges].sort((a, b) => a.travel_time - b.travel_time);
+    const unionFind = new UnionFind(this.vertexCount);
+    const mst = [];
+    let totalWeight = 0;
+
+    for (const edge of edgesSorted) {
+        const { vertex1_id, vertex2_id, travel_time } = edge;
+        const root1 = unionFind.find(vertex1_id);
+        const root2 = unionFind.find(vertex2_id);
+
+        if (root1 !== root2) {
+            unionFind.union(root1, root2);
+            mst.push(edge);
+            totalWeight += travel_time;
+        }
+    }
+
+    return { mst, totalWeight };
+}
+\end{verbatim}
+
+\subsection{Complexité}
+
+Le tri des arêtes domine la complexité :
+\[
+O(E \log E) + O(E \alpha(V)) \approx O(E \log E).
+\]
+
+Comme $E \approx V$ dans un graphe peu dense, on a $O(V \log V)$ en ordre de grandeur.
+
+\section{Complexité et Optimalité}
+
+\subsection{Connexité via DFS}
+
+\begin{itemize}
+	\item \texttt Complexité : $O(V+E)$
+	\item \texttt Optimalité : Une borne inférieure $\Omega(V+E)$ s’applique, donc c’est optimal.
+\end{itemize}
+
+\begin{center}
+c.f : Annexe - Figure 1
+\end{center}
+
+\subsection{Dijkstra (Tas Binaire)}
+
+\begin{itemize}
+	\item Complexité Dijkstra (sans tas) : $O(V^2)$
+	\item Complexité Dijkstra (tas binaire) : $O((V+E)\log V) \approx O(V \log V)$ pour un graphe peu dense.
+\end{itemize}
+
+\begin{center}
+c.f : Annexe - Figure 2
+\end{center}
+
+\subsection{Kruskal et Union-Find}
+
+\begin{itemize}
+ \item Complexité : $O(E \log E)$, dominée par le tri.
+ \item Opérations d’Union-Find en $O(\alpha(V))$, quasi constant.
+\end{itemize}
+
+\begin{center}
+c.f : Annexe - Figure 3
+\end{center}
+
+\section{Conclusion}
+
+Nous avons présenté les choix d’implémentation, justifiés d’un point de vue à la fois pratique et mathématique :
+
+\begin{itemize}
+    \item La liste d’adjacence assure une mémoire efficace ($O(V+E)$) et des parcours linéaires.
+    \item Le DFS permet de vérifier la connexité en $O(V+E)$, ce qui est optimal.
+    \item Dijkstra, avec un tas binaire, tourne en $O((V+E)\log V)$, ce qui est optimal.
+    \item Kruskal, combiné à Union-Find, offre un calcul de l’ACPM en $O(E \log E)$, proche de l’optimal.
+\end{itemize}
+
+Toutes ces complexités correspondent aux limites théoriques établies en, cours. Les algorithmes utilisés (DFS, Dijkstra, Kruskal) sont standard. Dans le contexte du réseau de métro, ces approches sont suffisantes pour une exécution rapide.
+
+En somme, l’implémentation réalisée est un compromis optimal entre simplicité, efficacité et robustesse théorique.
+
+\newpage
+
+\section{Sources}
+
+\begin{itemize}
+    \item \url{https://fr.wikipedia.org/wiki/Algorithme_de_parcours_en_profondeur#Complexit%C3%A9}
+    \item \url{https://fr.wikipedia.org/wiki/Algorithme_de_Dijkstra#Complexit%C3%A9_de_l'algorithme}
+    \item \url{https://fr.wikipedia.org/wiki/Tas_de_Fibonacci}
+    \item \url{https://fr.wikipedia.org/wiki/Union-find}
+    \item Cours II - Arbre couvrant de poids minimum
+    \item Cours III - Recherche du plus court chemin
+\end{itemize}
+
+\section{Annexes}
+
+\begin{figure}[!ht]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    title={Complexité de DFS : $O(V+E) \approx O(V)$},
+    xlabel={$V$},
+    ylabel={Complexité (échelle arbitraire)},
+    grid=major,
+    legend style={
+        at={(1.05,0.5)},
+        anchor=west,
+        draw=none
+    }
+]
+% DFS: O(V)
+\addplot[
+    color=blue,
+    thick
+] expression[domain=1:1000, samples=100] {x};
+\addlegendentry{DFS (O(V))}
+\end{axis}
+\end{tikzpicture}
+\caption{Croissance asymptotique de la complexité de DFS}
+\label{fig:dfs}
+\end{figure}
+
+\begin{figure}[!ht]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    title={Comparaison entre Dijkstra et Dijkstra avec tas binaire},
+    xlabel={$V$},
+    ylabel={Complexité (échelle arbitraire)},
+    grid=major,
+    domain=1:100,
+    legend style={
+        at={(1.05,0.5)},
+        anchor=west,
+        draw=none
+    }
+]
+
+% Dijkstra normal: O(V^2)
+\addplot[
+    color=blue,
+    thick
+] expression {x^2};
+\addlegendentry{Dijkstra ($O(V^2)$)}
+
+% Dijkstra tas binaire: O(V log V)
+\addplot[
+    color=red,
+    thick,
+    thick
+] expression {x*ln(x)};
+\addlegendentry{Dijkstra (tas binaire) ($O(V \log V)$)}
+
+\end{axis}
+\end{tikzpicture}
+\caption{Croissance asymptotique de la complexité : Dijkstra vs Dijkstra avec tas binaire}
+\label{fig:dijkstra}
+\end{figure}
+
+\begin{figure}[!ht]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    title={Complexités de Kruskal et Union-Find},
+    xlabel={$V$},
+    ylabel={Complexité (échelle arbitraire)},
+    grid=major,
+    legend style={
+        at={(1.05,0.5)},
+        anchor=west,
+        draw=none
+    },
+    domain=1:1000
+]
+
+% Kruskal: O(V log V)
+\addplot[
+    color=blue,
+    thick
+] expression {x*ln(x)};
+\addlegendentry{Kruskal ($O(V \log V)$)}
+
+\end{axis}
+\end{tikzpicture}
+\caption{Croissance asymptotique de la complexité pour Kruskal et Union-Find}
+\label{fig:kruskal}
+\end{figure}
+
+
+
+\end{document}
